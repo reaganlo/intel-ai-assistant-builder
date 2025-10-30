@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen, emit } from "@tauri-apps/api/event";
 import {
@@ -141,7 +141,7 @@ const ModelConversion = () => {
   useEffect(() => {
     resetMissingModels();
     getDBConfig();
-  }, []);
+  }, []); 
 
   useEffect(() => {
     const unlisten = listen("download-progress", (event) => {
@@ -332,7 +332,12 @@ const ModelConversion = () => {
         p={2}
         justifyItems={"center"}
         className="convert-model-box"
-        sx={{ flexGrow: 1, overflowY: "auto" }}
+        sx={{ 
+          flexGrow: 1,
+          overflowY: "auto",
+          backgroundColor: "var(--bg-color)",
+          color: "var(--text-primary-color)"
+        }}
       >
         <div className="textfield-label-container">
           <Typography className="textfield-title">

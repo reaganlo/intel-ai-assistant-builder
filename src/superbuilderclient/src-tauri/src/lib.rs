@@ -1,4 +1,4 @@
-﻿// Prevents additional console window on Windows in release, DO NOT REMOVE!!
+// Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod grpc_client;
 use grpc_client::{ SharedClient, super_builder };
@@ -106,6 +106,8 @@ async fn get_missing_models(
             }
         }
     }
+    
+    #[cfg(debug_assertions)]
     println!("Files in directory: {:?}", files_in_directory);
 
     // Determine which models are missing
@@ -191,6 +193,125 @@ async fn get_schema() -> Result<String, String> {
 }
 
 #[tauri::command]
+async fn fetch_modelscope_mcp_servers(
+    page_number: u32,
+    page_size: u32,
+    category: String,
+    search: String
+) -> Result<String, String> {
+    use serde_json::json;
+
+    // println!("Fetching ModelScope MCP Servers...");
+    // println!("   Page: {}, Size: {}, Category: '{}', Search: '{}'", page_number, page_size, category, search);
+
+    let url = "https://www.modelscope.cn/openapi/v1/mcp/servers";
+    
+    // Build filter based on whether category is empty
+    let filter = if category.is_empty() {
+        json!({
+            "is_hosted": true
+        })
+    } else {
+        json!({
+            "category": category,
+            "is_hosted": true
+        })
+    };
+    
+    let request_body = json!({
+        "direction": 1,
+        "filter": filter,
+        "page_number": page_number,
+        "page_size": page_size,
+        "search": search
+    });
+
+    // println!("Request body: {}", serde_json::to_string_pretty(&request_body).unwrap_or_else(|_| "invalid json".to_string()));
+
+    // println!("Creating HTTP client with 30s timeout...");
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(30))
+        .build()
+        .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+
+    // println!("🌐 Sending PUT request to {}...", url);
+    let response = client
+        .put(url)
+        .header("Content-Type", "application/json")
+        .header("Accept", "application/json")
+        .header("User-Agent", "IntelAIA/2.2.0")
+        .json(&request_body)
+        .send()
+        .await
+        .map_err(|e| format!("Request failed: {}", e))?;
+
+    let status = response.status();
+    // println!("Response received! Status: {}", status);
+
+    if !status.is_success() {
+        return Err(format!("HTTP error! status: {}", status));
+    }
+
+    // println!("Reading response body...");
+    let text = response
+        .text()
+        .await
+        .map_err(|e| format!("Failed to read response: {}", e))?;
+
+    // println!("Response body length: {} bytes", text.len());
+    // println!("Response preview: {}...", &text[..text.len().min(200)]);
+
+    Ok(text)
+}
+
+#[tauri::command]
+async fn fetch_modelscope_mcp_by_id(
+    id: String
+) -> Result<String, String> {
+
+    // println!("Fetching ModelScope MCP Servers...");
+    // println!("   Page: {}, Size: {}, Category: '{}', Search: '{}'", page_number, page_size, category, search);
+
+    let url = format!("https://www.modelscope.cn/openapi/v1/mcp/servers/{}", id);
+    
+
+    // println!("Creating HTTP client with 30s timeout...");
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(30))
+        .build()
+        .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+
+    // println!("🌐 Sending GET request to {}...", url);
+    let response = client
+        .get(url)
+        .header("Content-Type", "application/json")
+        .header("Accept", "application/json")
+        .header("User-Agent", "IntelAIA/2.2.0")
+        .send()
+        .await
+        .map_err(|e| format!("Request failed: {}", e))?;
+
+    let status = response.status();
+    // println!("Response received! Status: {}", status);
+
+    if !status.is_success() {
+        return Err(format!("HTTP error! status: {}", status));
+    }
+
+    // println!("Reading response body...");
+    let text = response
+        .text()
+        .await
+        .map_err(|e| format!("Failed to read response: {}", e))?;
+
+    // println!("Response body length: {} bytes", text.len());
+    // println!("Response preview: {}...", &text[..text.len().min(200)]);
+
+    Ok(text)
+}
+
+
+#[tauri::command]
 fn open_in_explorer(path: &str) -> Result<(), String> {
     Command::new("explorer")
         .arg(path)
@@ -263,6 +384,7 @@ pub async fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
             let window = app.get_webview_window("main").unwrap();
             set_window_borders(window).unwrap();
@@ -324,6 +446,8 @@ pub async fn run() {
                 get_active_mcp_servers,
                 get_mcp_server_tools,
                 validate_model,
+                fetch_modelscope_mcp_servers,
+                fetch_modelscope_mcp_by_id,
             ]
         )
         .build(tauri::generate_context!())
@@ -337,4 +461,96 @@ pub async fn run() {
             _ => {}
         }
     });
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_fetch_modelscope_mcp_servers_signature() {
+        // Test that the function has the correct async signature
+        // This is a compilation test to verify the function signature
+        
+        let _page_number = 1u32;
+        let _page_size = 10u32;
+        let _category = String::from("communication");
+        let _search = String::from("");
+        
+        // Test that the function can be called (but don't actually execute it)
+        // We're just verifying the async function signature compiles correctly
+        let _future = fetch_modelscope_mcp_servers(_page_number, _page_size, _category, _search);
+        
+        // We don't await the future to avoid making actual network calls in tests
+        println!("✅ Test: fetch_modelscope_mcp_servers async signature is correct");
+    }
+
+    #[test]
+    fn test_json_request_body_structure() {
+        use serde_json::json;
+        
+        // Test that we can build the request body correctly
+        let category = String::from("communication");
+        let filter = json!({
+            "category": category,
+            "is_hosted": true
+        });
+        
+        let request_body = json!({
+            "direction": 1,
+            "filter": filter,
+            "page_number": 1,
+            "page_size": 10,
+            "search": ""
+        });
+        
+        // Verify the structure
+        assert!(request_body["direction"].is_number());
+        assert!(request_body["filter"].is_object());
+        assert!(request_body["filter"]["is_hosted"].is_boolean());
+        assert!(request_body["page_number"].is_number());
+        assert!(request_body["page_size"].is_number());
+        assert!(request_body["search"].is_string());
+        
+        println!("✅ Test: JSON request body structure is valid");
+    }
+
+    #[test]
+    fn test_empty_category_filter() {
+        use serde_json::json;
+        
+        // Test filter when category is empty
+        let category = String::from("");
+        let filter = if category.is_empty() {
+            json!({
+                "is_hosted": true
+            })
+        } else {
+            json!({
+                "category": category,
+                "is_hosted": true
+            })
+        };
+        
+        // Should not have category field when empty
+        assert!(filter["is_hosted"].is_boolean());
+        assert!(filter.get("category").is_none());
+        
+        println!("✅ Test: Empty category creates correct filter");
+    }
+
+    #[test]
+    fn test_reqwest_client_creation() {
+        use std::time::Duration;
+        
+        // Test that we can create a reqwest client with timeout
+        let client_result = reqwest::Client::builder()
+            .timeout(Duration::from_secs(30))
+            .build();
+        
+        // Verify the client was created successfully
+        assert!(client_result.is_ok());
+        println!("✅ Test: reqwest client can be created with 30s timeout");
+    }
 }

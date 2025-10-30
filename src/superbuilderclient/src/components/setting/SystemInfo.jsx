@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import SimpleAccordion from "../accordion/SimpleAccordion";
 import { Typography, Card } from "@mui/material";
 import MemoryIcon from '@mui/icons-material/Memory';  // for CPU
@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 export const SystemInfoCard = () => {
     const { t } = useTranslation();
     const sysInfo = useDataStore((state) => state.system_info);
-
+   
     const getSystemValue = (type) => {
         if (sysInfo) {
             switch (type) {
@@ -25,12 +25,6 @@ export const SystemInfoCard = () => {
                     return `${sysInfo.MemoryInfo.CapacityInGB}GB`;
                 case "ram_freq":
                     return `${sysInfo.MemoryInfo.FreqInMHz}Mhz`;
-                case "gpu_name":
-                    return `${sysInfo.GpuInfo.Name}`;
-                case "gpu_drv":
-                    return `${sysInfo.GpuInfo.DriverVersion}`;
-                case "gpu_mem":
-                    return `${sysInfo.GpuInfo.MemoryInGB}GB Memory`;
                 case "npu_name":
                     return `${sysInfo.NpuInfo.Name}`;
                 case "npu_version":
@@ -41,6 +35,36 @@ export const SystemInfoCard = () => {
                     return '';
             }
         }
+    };
+
+    // Helper function to render GPU items
+    const renderGpuItems = () => {
+        let gpuList = [];
+        
+        // Add existing GPU data if available
+        if (sysInfo && sysInfo.GpuInfo) {
+            if (Array.isArray(sysInfo.GpuInfo)) {
+                gpuList = [...sysInfo.GpuInfo];
+            } else {
+                gpuList = [sysInfo.GpuInfo];
+            }
+        }
+        
+        if (gpuList.length > 0) {
+            return gpuList.map((gpu, index) => (
+                <SystemInfoItem
+                    key={`gpu-${index}`}
+                    icon="gpu"
+                    title={`GPU ${index + 1}`}
+                    values={[
+                        gpu.Name || 'Unknown',
+                        gpu.DriverVersion || 'Unknown',
+                        `${gpu.MemoryInGB || 'Unknown'}GB`,
+                    ]}
+                />
+            ));
+        }
+        return null;
     };
 
     return (
@@ -65,15 +89,7 @@ export const SystemInfoCard = () => {
                     getSystemValue("ram_freq"),
                 ]}
             />
-            <SystemInfoItem
-                icon="gpu"
-                title="GPU"
-                values={[
-                    getSystemValue("gpu_name"),
-                    getSystemValue("gpu_drv"),
-                    getSystemValue("gpu_mem"),
-                ]}
-            />
+            {renderGpuItems()}
             <SystemInfoItem
                 icon="gpu"
                 title="NPU"
@@ -117,7 +133,7 @@ const SystemInfoItem = ({ icon, title, values }) => {
                                 <strong>{value && value.includes("null") ? "" : value}</strong>
                             </Typography>
                             {title === "CPU" && index === 0 && <br />}
-                            {title === "GPU" && index === 1 && <br />}
+                            {title.startsWith("GPU") && index === 1 && <br />}
                             {title === "NPU" && (index === 0 || index === 1) && <br />}
                         </React.Fragment>
                     ))}

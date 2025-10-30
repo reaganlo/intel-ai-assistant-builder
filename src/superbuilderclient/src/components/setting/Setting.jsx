@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useContext, use } from "react";
+import React, { useState, useEffect, useContext, use } from "react";
 import "./Setting.css";
 import Notification from "../notification/Notification";
 import { invoke } from "@tauri-apps/api/core";
@@ -44,7 +44,7 @@ import useDataStore from "../../stores/DataStore";
 
 import useModelStore from "../../stores/ModelStore";
 
-import { getSystemLanguage } from "../../i18n";
+import { getSystemLanguage, SUPPORTED_LANGUAGES, getSystemLanguageLabel } from "../../i18n";
 import i18n from "i18next";
 
 import { useTranslation } from "react-i18next";
@@ -154,13 +154,13 @@ const Setting = ({ isOpen, setIsOpen, onClose }) => {
     {
       key: "divider",
       label: "divider",
-      content: "âŽ¯âŽ¯ Recommended ModelsâŽ¯âŽ¯âŽ¯âŽ¯âŽ¯âŽ¯",
+      content: "⎯⎯ Recommended Models⎯⎯⎯⎯⎯⎯",
     },
     ...recommendedModel,
     {
       key: "divider",
       label: "divider",
-      content: "âŽ¯âŽ¯ Other ModelsâŽ¯âŽ¯âŽ¯âŽ¯âŽ¯âŽ¯âŽ¯âŽ¯âŽ¯âŽ¯âŽ¯âŽ¯âŽ¯",
+      content: "⎯⎯ Other Models⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯",
     },
     ...allModels,
   ];
@@ -284,33 +284,17 @@ const Setting = ({ isOpen, setIsOpen, onClose }) => {
   const uiColorConfigurable = [
     {
       key: "header_bg_color",
-      label:
-        i18n.language === "zh-Hans"
-          ? "顶部背景"
-          : i18n.language === "zh-Hant"
-            ? "頂部背景"
-            : "Primary Color",
+      label: t("setting.visuals.color.primary"),
     },
     {
-      key: "header_text_bg_color",
-      label:
-        i18n.language === "zh-Hans"
-          ? "顶部文字和图标"
-          : i18n.language === "zh-Hant"
-            ? "頂部文字和圖標"
-            : "Primary Text & Icons Color",
+      key: "header_text_bg_color", 
+      label: t("setting.visuals.color.primary_text"),
     },
     {
       key: "sidebar_box_bg_color",
-      label:
-        i18n.language === "zh-Hans"
-          ? "侧边栏背景"
-          : i18n.language === "zh-Hant"
-            ? "側邊列背景"
-            : "Secondary Color",
+      label: t("setting.visuals.color.secondary"),
     },
   ];
-
 
   const updateUIColorConfiguration = async (resetUXSettings) => {
     setAssistantConfigUpdating(true);
@@ -344,7 +328,7 @@ const Setting = ({ isOpen, setIsOpen, onClose }) => {
       resetUxSettings: resetUXSettings,
     });
     if (resetUXSettings) {
-      await updateAssistantName(true); // make sure assistant name also resets
+      await updateAssistantName(true); // make sure assistant name also resets 
     }
     await useDataStore.getState().getDBConfig();
     emit('assistant-config-updated'); // make sure appearance changes propagate to separate app windows
@@ -357,16 +341,16 @@ const Setting = ({ isOpen, setIsOpen, onClose }) => {
     } else if (assistantName.trim().length === 0 || resetName) {
       switch (assistant.short_name) {
         case "HR":
-          setAssistantName("Human Resources - IntelÂ® AI Assistant Builder");
+          setAssistantName("Human Resources - Intel® AI Assistant Builder");
           break;
         case "SA":
-          setAssistantName("Sales Assistant - IntelÂ® AI Assistant Builder");
+          setAssistantName("Sales Assistant - Intel® AI Assistant Builder");
           break;
         case "MA":
-          setAssistantName("Medical Assistant - IntelÂ® AI Assistant Builder");
+          setAssistantName("Medical Assistant - Intel® AI Assistant Builder");
           break;
         case "FA":
-          setAssistantName("Finance Assistant - IntelÂ® AI Assistant Builder");
+          setAssistantName("Finance Assistant - Intel® AI Assistant Builder");
           break;
       }
     }
@@ -493,21 +477,23 @@ const Setting = ({ isOpen, setIsOpen, onClose }) => {
     const initializeLang = async () => {
       try {
         const saved = localStorage.getItem("i18n-lng") || "sys";
-        const detected = await getSystemLanguage(); // Should return zh-Hans/zh-Hant/en
+        const detected = await getSystemLanguage();
 
         // Convert legacy storage values (compatibility handling)
         const migratedSaved = saved === "zh" ? "zh-Hans" : saved;
 
-        // Initialize options
+        // Initialize options using configuration from i18n.jsx
         const options = [
           {
             key: "sys",
-            label: detected.startsWith("zh") ? "跟随系统" : "System",
+            label: getSystemLanguageLabel(detected),
             actualLng: detected,
           },
-          { key: "en", label: "English" },
-          { key: "zh-Hans", label: "简体中文" },
-          { key: "zh-Hant", label: "繁體中文" },
+          ...SUPPORTED_LANGUAGES.map(lang => ({
+            key: lang.code,
+            label: lang.nativeName,
+            name: lang.name
+          }))
         ];
 
         setSystemLng(detected);
@@ -532,7 +518,7 @@ const Setting = ({ isOpen, setIsOpen, onClose }) => {
         opt.key === "sys"
           ? {
             ...opt,
-            label: systemLng?.startsWith("zh") ? "跟随系统" : "System",
+            label: getSystemLanguageLabel(systemLng),
             actualLng: systemLng,
           }
           : opt
@@ -600,7 +586,7 @@ const Setting = ({ isOpen, setIsOpen, onClose }) => {
         toggleOpen={toggleModal}
         assistant={assistant}
       />
-
+      
       <FluidModal
         open={isUploadModelInfoOpen}
         handleClose={toggleUploadModelInfo}
@@ -647,8 +633,8 @@ const Setting = ({ isOpen, setIsOpen, onClose }) => {
             <div className="logo-setting-container">
               <div className="logo-display">
                 <AssistantLogo />
-              </div>
-                <Button
+              </div>              
+                <Button                  
                   variant="contained"
                   style={{ width: "100%" }}
                   onClick={() => {

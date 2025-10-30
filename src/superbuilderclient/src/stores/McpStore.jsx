@@ -1,11 +1,23 @@
 import { create } from "zustand";
 import { invoke } from "@tauri-apps/api/core";
 import useAppStore from "./AppStore";
+import {
+  saveMarketplaceCache,
+  loadMarketplaceCache,
+  saveLocalServersCache,
+  loadLocalServersCache,
+  saveMarketplaceServersByIdCache,
+  loadMarketplaceServersByIdCache,
+} from "../utils/mcpCache";
 
 const useMcpStore = create((set, get) => ({
   mcpManagementOpen: false,
   openMcpManagement: () => set({ mcpManagementOpen: true }),
   closeMcpManagement: () => set({ mcpManagementOpen: false }),
+
+  mcpMarketplaceOpen: false,
+  openMcpMarketplace: () => set({ mcpMarketplaceOpen: true }),
+  closeMcpMarketplace: () => set({ mcpMarketplaceOpen: false }),
 
   // Add a refresh trigger
   refreshTrigger: 0,
@@ -37,12 +49,18 @@ const useMcpStore = create((set, get) => ({
     }),
 
   mcpServers: [],
-  getMcpServer: async () => {
+  getLocalMcpServers: async () => {
     try {
       const response = await invoke("get_mcp_servers");
       const parsedJSONResult = JSON.parse(response);
       console.log("Parsed MCP Server JSON Result:", parsedJSONResult);
       set({ mcpServers: parsedJSONResult });
+      
+      // Save to cache
+      await saveLocalServersCache(parsedJSONResult);
+      
+      // Update the installed status for marketplace servers after fetching local servers
+      get().updateMarketplaceInstalledStatus();
     } catch (error) {
       console.error("Failed to fetch MCP Servers:", error);
     }
@@ -63,7 +81,7 @@ const useMcpStore = create((set, get) => ({
       console.log(response);
       if (response.success) {
         console.log("MCP Server added successfully:", server.mcpServerName);
-        get().getMcpServer(); // Refresh the list after adding
+        get().getLocalMcpServers(); // Refresh the list after adding
       } else {
         console.error("Failed to add MCP Server:", response.message);
         useAppStore
@@ -104,7 +122,7 @@ const useMcpStore = create((set, get) => ({
 
       if (response.success) {
         console.log("MCP Server updated successfully:", server.mcpServerName);
-        get().getMcpServer(); // Refresh the list after adding
+        get().getLocalMcpServers(); // Refresh the list after adding
       } else {
         console.error("Failed to update MCP Server:", response.message);
         useAppStore
@@ -136,10 +154,10 @@ const useMcpStore = create((set, get) => ({
         const response = await invoke("remove_mcp_server", {
           serverName: server.server_name,
         });
-        get().getMcpServer();
+        get().getLocalMcpServers();
         if (response === "MCP server removed successfully.") {
           console.log("MCP Server removed successfully:", server.server_name);
-          // get().getMcpServer(); // Refresh the list after removal
+          // get().getLocalMcpServers(); // Refresh the list after removal
         }
       }
       // Clear the selected servers after successful removal
@@ -251,8 +269,10 @@ const useMcpStore = create((set, get) => ({
     try {
       console.debug("Fetching active MCP Servers...");
       const response = await invoke("get_active_mcp_servers");
+      console.log("Raw response from get_active_mcp_servers:", response);
       const parsedJSONResult = JSON.parse(response);
-      console.log("Active MCP Servers:", parsedJSONResult);
+      console.log("Active MCP Servers (parsed):", parsedJSONResult);
+      console.log("Active MCP Servers type:", typeof parsedJSONResult, "isArray:", Array.isArray(parsedJSONResult));
       set({ runningMcpServers: parsedJSONResult });
     } catch (error) {
       console.error("Failed to fetch active MCP Servers:", error);
@@ -508,6 +528,252 @@ const useMcpStore = create((set, get) => ({
           `Failed to fetch active MCP Agents: ${error}`,
           "error"
         );
+    }
+  },
+
+  marketplaceServers: [],
+  marketplaceLoading: false,
+  marketplaceTotalPages: 0,
+  marketplaceCurrentPage: 1,
+  marketplaceLastFetch: null, // Timestamp of last fetch
+  marketplaceCacheTimeout: 24 * 60 * 60 * 1000, // 1 day in milliseconds (configurable)
+
+  // Set marketplace cache timeout in milliseconds
+  setMarketplaceCacheTimeout: (timeoutMs) => set({ marketplaceCacheTimeout: timeoutMs }),
+
+  // Helper function to generate unique MCP server name from marketplace server
+  // Format: {serverName}_{marketplaceItemId}
+  generateMcpServerName: (serverName, marketplaceItemId) => {
+    return `${serverName}_${marketplaceItemId}`;
+  },
+
+  // Helper function to check if a server name matches a marketplace item
+  // This checks both the original name and the generated unique name
+  isServerFromMarketplaceItem: (localServerName, marketplaceServerName, marketplaceItemId) => {
+    const uniqueName = get().generateMcpServerName(marketplaceServerName, marketplaceItemId);
+    return localServerName === uniqueName;
+  },
+
+  // Helper function to check if a marketplace item is installed
+  checkMarketplaceItemInstalled: (marketplaceItem, mcpServers, marketplaceServersById) => {
+    // Check the cache to see what servers this marketplace item contains
+    const cachedServers = marketplaceServersById[marketplaceItem.id];
+    
+    // If we have cached server info for this item, check those specific server names
+    if (cachedServers && cachedServers.length > 0) {
+      return cachedServers.some(serverInfo => {
+        const uniqueName = get().generateMcpServerName(serverInfo.name, marketplaceItem.id);
+        return mcpServers.some(localServer => localServer.server_name === uniqueName);
+      });
+    }
+    
+    // Fallback: check if any server name contains the marketplace item ID
+    // This handles cases where we haven't fetched the details yet
+    return mcpServers.some((server) => {
+      return server.server_name.endsWith(`_${marketplaceItem.id}`);
+    });
+  },
+
+  // Update installed status for all marketplace servers
+  updateMarketplaceInstalledStatus: () => {
+    const state = get();
+    const updatedServers = state.marketplaceServers.map(server => ({
+      ...server,
+      installed: state.checkMarketplaceItemInstalled(
+        server,
+        state.mcpServers,
+        state.marketplaceServersById
+      )
+    }));
+    set({ marketplaceServers: updatedServers });
+  },
+
+  getMarketplaceServers: async (pageNumber = 1, pageSize = 20, category = "", search = "", forceRefresh = false) => {
+    try {
+      const state = get();
+      
+      // Step 1: Try to load from Tauri Store cache first (instant display)
+      if (!forceRefresh && category === "" && search === "" && pageNumber === 1) {
+        console.log("Checking for cached marketplace data...");
+        const cachedData = await loadMarketplaceCache();
+        
+        if (cachedData && cachedData.marketplaceServers?.length > 0) {
+          console.log(" Using cached marketplace data (stale-while-revalidate):", {
+            servers: cachedData.marketplaceServers.length,
+            timestamp: new Date(cachedData.marketplaceLastFetch).toLocaleString()
+          });
+          
+          // Immediately set the cached data (no loading spinner)
+          set({
+            marketplaceServers: cachedData.marketplaceServers,
+            marketplaceLastFetch: cachedData.marketplaceLastFetch,
+            marketplaceCurrentPage: pageNumber,
+            marketplaceLoading: false, // Don't show loading for cached data
+          });
+          
+          // Update installed status with cached local servers if available
+          const cachedLocalServers = await loadLocalServersCache();
+          if (cachedLocalServers && cachedLocalServers.mcpServers?.length > 0) {
+            set({ mcpServers: cachedLocalServers.mcpServers });
+          }
+          
+          // Also restore marketplaceServersById cache
+          const cachedServersById = await loadMarketplaceServersByIdCache();
+          if (cachedServersById) {
+            set({ marketplaceServersById: cachedServersById.marketplaceServersById || {} });
+          }
+          
+          state.updateMarketplaceInstalledStatus();
+          
+          // Continue to fetch fresh data in background (don't return here)
+          console.log("Fetching fresh data in background...");
+        }
+      }
+
+      // Step 2: Show loading only if we don't have cached data
+      const hasCachedData = get().marketplaceServers.length > 0;
+      if (!hasCachedData) {
+        set({ marketplaceLoading: true });
+      }
+
+      console.log(" Calling fetch_modelscope_mcp_servers with:", { pageNumber, pageSize, category, search });
+
+      const response = await invoke("fetch_modelscope_mcp_servers", {
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        category: category,
+        search: search
+      });
+
+      console.log(" Received response from backend");
+
+      const result = JSON.parse(response);
+      // console.log("MCP Marketplace Servers:", result);
+
+      const currentState = get();
+      
+      // Transform the API response to match our internal structure
+      const transformedServers = result.data?.mcp_server_list?.map(server => {
+        const marketplaceItem = {
+          id: server.id,
+          name: server.locales?.en?.name || server.name,
+          chineseName: server.chinese_name || server.locales?.zh?.name,
+          description: server.locales?.en?.description || server.description,
+          chineseDescription: server.locales?.zh?.description,
+          keywords: [...(server.categories || []), ...(server.tags || [])],
+          icon: server.logo_url || "📦",
+          publisher: server.publisher,
+          viewCount: server.view_count,
+          categories: server.categories || [],
+          command: "",
+          args: "",
+          url: "",
+          env: "",
+        };
+        
+        // Check if this item is installed
+        return {
+          ...marketplaceItem,
+          installed: currentState.checkMarketplaceItemInstalled(
+            marketplaceItem,
+            currentState.mcpServers,
+            currentState.marketplaceServersById
+          )
+        };
+      }) || [];
+
+      const newState = {
+        marketplaceServers: transformedServers,
+        marketplaceCurrentPage: pageNumber,
+        marketplaceLastFetch: Date.now(), // Update last fetch timestamp
+        marketplaceTotalPages: Math.ceil((result.data?.total_count || 0) / pageSize)
+      };
+      
+      set(newState);
+      
+      // Step 3: Save fresh data to Tauri Store cache
+      if (category === "" && search === "" && pageNumber === 1) {
+        await saveMarketplaceCache({
+          marketplaceServers: transformedServers,
+        });
+        
+        // Also save marketplaceServersById cache
+        const serversById = get().marketplaceServersById;
+        if (Object.keys(serversById).length > 0) {
+          await saveMarketplaceServersByIdCache(serversById);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch MCP Marketplace Servers:", error);
+      useAppStore
+        .getState()
+        .showNotification(
+          `Failed to fetch MCP Marketplace Servers: ${error.message}`,
+          "error"
+        );
+      set({ marketplaceServers: [] });
+    } finally {
+      set({ marketplaceLoading: false });
+    }
+  },
+
+  marketplaceServersById: {}, // Cache: { marketplaceId: [serverConfigs...] }
+
+  getModelScopeMcpServerById: async (id) => {
+    try {
+      console.log(" Calling fetch_modelscope_mcp_by_id with:", { id });
+      const response = await invoke("fetch_modelscope_mcp_by_id", {
+        id: id
+      });
+
+      console.log(" Received response from backend");
+
+      const result = JSON.parse(response);
+      console.log("MCP Marketplace Servers:", result);
+
+      // Transform the API response to match our internal structure
+      // path: result.data.server_config[0].mcpServers
+      // "mcpServers": {
+      //           "fetch": {
+      //             "args": [
+      //               "mcp-server-fetch"
+      //             ],
+      //             "command": "uvx"
+      //           }
+      //         }      
+      // The mcpServers is an object with server names as keys
+      const mcpServersObject = result.data?.server_config?.[0]?.mcpServers || {};
+
+      // Convert the object into an array of server configurations
+      const transformedServers = Object.entries(mcpServersObject).map(([serverName, config]) => ({
+        name: serverName,           // e.g., "fetch"
+        command: config.command,    // e.g., "uvx"
+        args: (config.args || []).join(' ')     // e.g., ["mcp-server-fetch"]
+      }));
+
+      // Update the cache with this marketplace item's servers
+      const updatedServersById = {
+        ...get().marketplaceServersById,
+        [id]: transformedServers
+      };
+      
+      set({ 
+        marketplaceServersById: updatedServersById
+      });
+      
+      // Save to Tauri Store cache
+      await saveMarketplaceServersByIdCache(updatedServersById);
+      
+      return transformedServers;
+    } catch (error) {
+      console.error(`Failed to fetch MCP Marketplace Server ${id}: ${error}`);
+      useAppStore
+        .getState()
+        .showNotification(
+          `Failed to fetch MCP Marketplace Server ${id}: ${error.message}`,
+          "error"
+        );
+      return [];
     }
   },
 }));

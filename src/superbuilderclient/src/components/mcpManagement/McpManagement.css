@@ -6,10 +6,11 @@
   bottom: 17px;
   flex-direction: column;
   box-sizing: border-box;
-  background-color: white;
+  background-color: var(--bg-color);
   display: flex;
   justify-content: space-between;
-  padding: 15px 15px 40px 15px;
+  padding: 8px 12px 20px 12px;
+  gap: 8px;
   z-index: 999;
   overflow: auto;
   height: 98%;
@@ -28,7 +29,8 @@
 }
 
 .mcpmodal-metadata {
-  background-color: #f4f4f4;
+  background-color: var(--divider-color);
+  color: var(--text-primary-color);
   padding: 8px;
   border-radius: 3px;
   font-size: 14px;
@@ -41,7 +43,240 @@
 }
 
 .mcpmodal-content {
-  padding: 10px 0 0;
+  padding: 8px 0 0;
+}
+
+/* Compact button styling */
+.mcp-modal-overlay .close-button,
+.mcp-modal-overlay .add-buttons,
+.mcp-modal-overlay .remove-buttons {
+  font-size: 13px !important;
+  padding: 4px 12px !important;
+  height: 28px !important;
+}
+
+/* Filebox spacing - reduce gaps between tables */
+.mcp-modal-overlay .filebox {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tables container - ensure it takes full height */
+.tables-container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Side-by-side layout */
+.tables-container.horizontal {
+  flex-direction: row;
+  height: 100%;
+}
+
+.tables-container.horizontal .filebox {
+  flex: 0 0 auto;
+  min-width: 300px;
+  height: 100%;
+}
+
+.tables-container.horizontal .filebox.resizable-left {
+  min-width: 300px;
+  flex: 0 0 auto;
+}
+
+.tables-container.horizontal .filebox.resizable-right {
+  min-width: 300px;
+  flex: 0 0 auto;
+}
+
+/* Vertical layout */
+.tables-container.vertical {
+  flex-direction: column;
+  height: 100%;
+}
+
+.tables-container.vertical .filebox {
+  flex: 0 0 auto;
+  min-height: 250px; /* Increased minimum height for better stability */
+  overflow: hidden;
+}
+
+/* Prevent DataGrid from crashing with small heights */
+.tables-container.vertical .MuiDataGrid-root {
+  min-height: 250px !important;
+}
+
+.tables-container.vertical .MuiDataGrid-virtualScroller {
+  min-height: 150px !important;
+}
+
+/* Fix virtual scroller content gaps and empty rows */
+.MuiDataGrid-virtualScrollerContent {
+  min-height: auto !important;
+  display: block !important;
+}
+
+.MuiDataGrid-virtualScrollerRenderZone {
+  position: relative !important;
+}
+
+/* Ensure proper spacing between rows */
+.MuiDataGrid-row:last-child {
+  border-bottom: none !important;
+}
+
+/* Prevent empty space after last row */
+.MuiDataGrid-virtualScroller .MuiDataGrid-virtualScrollerContent > div:last-child {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Force proper virtual scroller content height after resize */
+.MuiDataGrid-virtualScrollerContent--overflowed {
+  min-height: auto !important;
+}
+
+/* Ensure virtual scroller doesn't create gaps */
+.MuiDataGrid-virtualScroller {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Fix layout after dynamic height changes */
+.MuiDataGrid-main {
+  overflow: hidden !important;
+}
+
+.MuiDataGrid-columnHeaders {
+  flex-shrink: 0 !important;
+}
+
+/* Specific fix for agent table gaps */
+.filebox .MuiDataGrid-virtualScrollerContent {
+  transform: translate3d(0, 0, 0) !important;
+}
+
+/* Add/Remove button container */
+.add-remove-button-container {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Button container when in header (top position) */
+.filebox .add-remove-button-container {
+  margin-top: 0;
+}
+
+/* Button container when in footer (bottom position) - legacy support */
+.add-remove-button-container.footer-buttons {
+  margin-top: 8px;
+}
+
+/* Toggle button styling */
+.MuiToggleButtonGroup-root {
+  background-color: var(--bg-secondary-color);
+}
+
+.MuiToggleButton-root {
+  color: var(--text-primary-color) !important;
+  border-color: var(--divider-color) !important;
+}
+
+.MuiToggleButton-root.Mui-selected {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* Resize handle - common */
+.resize-handle {
+  z-index: 1000 !important;
+  pointer-events: auto !important;
+}
+
+.resize-handle * {
+  pointer-events: none !important;
+}
+
+.resize-handle:hover {
+  background-color: var(--primary-color) !important;
+}
+
+.resize-handle:active {
+  background-color: var(--primary-color) !important;
+}
+
+/* Horizontal resize handle */
+.resize-handle-horizontal {
+  cursor: col-resize !important;
+}
+
+/* Vertical resize handle */
+.resize-handle-vertical {
+  cursor: row-resize !important;
+}
+
+/* Prevent text selection during resize */
+.tables-container.resizing {
+  user-select: none !important;
+}
+
+.tables-container.resizing .filebox,
+.tables-container.resizing .filebox * {
+  user-select: none !important;
+  pointer-events: none !important;
+}
+
+.tables-container.resizing .resize-handle {
+  pointer-events: auto !important;
+  background-color: var(--primary-color) !important;
+}
+
+/* Global cursor override during resize - horizontal */
+body.resizing .tables-container.horizontal,
+body.resizing .tables-container.horizontal * {
+  cursor: col-resize !important;
+}
+
+/* Global cursor override during resize - vertical */
+body.resizing .tables-container.vertical,
+body.resizing .tables-container.vertical * {
+  cursor: row-resize !important;
+}
+
+/* Header button styling */
+.mcp-header-add-btn {
+  background-color: var(--primary-main-color) !important;
+  color: var(--primary-text-color, white) !important;
+  border: none !important;
+}
+
+.mcp-header-add-btn:hover {
+  background-color: var(--primary-dark-color) !important;
+}
+
+.mcp-header-add-btn:disabled {
+  background-color: var(--button-disabled-color) !important;
+  color: var(--text-secondary-color) !important;
+}
+
+.mcp-header-remove-btn {
+  background-color: var(--error-main-color) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.mcp-header-remove-btn:hover {
+  background-color: var(--error-main-color) !important;
+  filter: brightness(0.8);
+}
+
+.mcp-header-remove-btn:disabled {
+  background-color: var(--button-disabled-color) !important;
+  color: var(--text-secondary-color) !important;
 }
 
 .mcpmodal-footer {

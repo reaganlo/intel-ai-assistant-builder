@@ -60,6 +60,12 @@ export function WorkflowContainer ({children, settingsButton=null}) {
                 <IconButton
                     onClick={closeWorkflow}
                     disabled={!isChatReady}
+                    sx={{
+                        color: "#666666",
+                        "&:hover": {
+                            backgroundColor: "rgba(0, 0, 0, 0.04)",
+                        },
+                    }}
                 >
                     <CloseIcon/>
                 </IconButton>

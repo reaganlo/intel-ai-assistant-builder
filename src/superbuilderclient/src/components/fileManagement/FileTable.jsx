@@ -1,4 +1,4 @@
-﻿import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -62,45 +62,45 @@ export default function FileTable({
   const colNameMap = {
     name:
       i18n.language === "zh-Hans"
-        ? "æ–‡ä»¶å"
+        ? "文件名"
         : i18n.language === "zh-Hant"
-        ? "æª”æ¡ˆåç¨±"
+        ? "檔案名稱"
         : "Name",
     added:
       i18n.language === "zh-Hans"
-        ? "æ·»åŠ "
+        ? "添加"
         : i18n.language === "zh-Hant"
-        ? "æ–°å¢ž"
+        ? "新增"
         : "Added",
     modified:
       i18n.language === "zh-Hans"
-        ? "ä¿®æ”¹"
+        ? "修改"
         : i18n.language === "zh-Hant"
-        ? "ä¿®æ”¹"
+        ? "修改"
         : "Modified",
     type:
       i18n.language === "zh-Hans"
-        ? "ç±»åž‹"
+        ? "类型"
         : i18n.language === "zh-Hant"
-        ? "é¡žåž‹"
+        ? "類型"
         : "Type",
     size:
       i18n.language === "zh-Hans"
-        ? "å¤§å°"
+        ? "大小"
         : i18n.language === "zh-Hant"
-        ? "å¤§å°"
+        ? "大小"
         : "Size",
     status:
       i18n.language === "zh-Hans"
-        ? "çŠ¶æ€"
+        ? "状态"
         : i18n.language === "zh-Hant"
-        ? "ç‹€æ…‹"
+        ? "狀態"
         : "Status",
     path:
       i18n.language === "zh-Hans"
-        ? "è·¯å¾„"
+        ? "路径"
         : i18n.language === "zh-Hant"
-        ? "è·¯å¾‘"
+        ? "路徑"
         : "Path",
   };
 

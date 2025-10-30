@@ -104,7 +104,7 @@ const ChatInput = ({
             userSelect:"none", 
             borderRadius:"10px", 
             padding:"14px",
-            '& .MuiInputBase-root': { color:"#555555", fontFamily: 'IntelOne Display, sans-serif' }
+            '& .MuiInputBase-root': { color:"var(--text-primary-color)", fontFamily: 'IntelOne Display, sans-serif' }
           }}
         />
         <div className="chat-input-options">

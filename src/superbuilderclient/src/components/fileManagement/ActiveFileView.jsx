@@ -509,14 +509,16 @@ const ActiveFileView = ({
         }}
         title={title}
         size="small"
-        color={hover ? hoverColor : "default"}
         onMouseEnter={() => {
           if (!disabled) {
             setHover(true);
           }
         }}
         onMouseLeave={() => setHover(false)}
-        sx={{ backgroundColor: "rgb(243, 243, 243)" }}
+        sx={{ 
+          backgroundColor: "rgb(243, 243, 243)",
+          color: hover ? hoverColor : "#666666",
+        }}
       >
         {icon}
       </IconButton>
@@ -534,7 +536,7 @@ const ActiveFileView = ({
           onClick={() => addFiles("")}
           title="Add files to the knowledge base"
           disabled={!isChatReady || loading || !filesLoaded}
-          hoverColor="primary"
+          hoverColor="var(--primary-main-color)"
           icon={<AddIcon fontSize="medium" />}
         />
         <CustomIconButton
@@ -543,7 +545,7 @@ const ActiveFileView = ({
           disabled={
             !isChatReady || loading || !filesLoaded || activeFiles.length <= 0
           }
-          hoverColor="error"
+          hoverColor="var(--error-main-color)"
           icon={<DeleteIcon fontSize="medium" />}
         />
         <Box sx={{ pl: 1, flexGrow: 1 }}>
@@ -725,7 +727,7 @@ const ActiveFileView = ({
             <div className="empty-file-table-container">
               <CustomIconButton
                 title="Add files to the knowledge base"
-                hoverColor="primary"
+                hoverColor="var(--primary-main-color)"
                 icon={<AddIcon fontSize="medium" />}
                 onClick={() => addFiles("")}
                 disabled={!isChatReady || loading || !filesLoaded}

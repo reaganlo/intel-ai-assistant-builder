@@ -1,4 +1,4 @@
-﻿.setting-panel {
+.setting-panel {
   position: fixed;
   display: flex;
   flex-direction: column;
@@ -6,7 +6,7 @@
   left: -350px;
   height: calc(100% - 55px);
   width: 350px;
-  background-color: white;
+  background-color: var(--bg-color);
   padding: 20px;
   padding-top: 10px;
   overflow: auto;
@@ -89,7 +89,7 @@
   width: 100%;
   margin-top: 10px;
   margin-bottom: 20px;
-  background-color: white;
+  background-color: var(--bg-color);
 }
 
 .inner-title {
@@ -123,8 +123,14 @@
   margin-top: 10px;
   margin-bottom: 16px;
   padding: 16px;
-  background-color: white;
+  background-color: var(--bg-color);
   flex-direction: column;
+  color: var(--text-primary-color);
+}
+
+.model-switch-card .MuiOutlinedInput-root {
+  background-color: var(--bg-color);
+  color: var(--text-primary-color);
 }
 
 /* Keep these existing MUI overrides */
@@ -134,7 +140,6 @@
 }
 
 .model-switch-card .MuiInputLabel-root {
-  background-color: white;
   padding: 0 4px;
 }
 
@@ -239,6 +244,7 @@
 .color-picker-label {
   width: 100%;
   margin-bottom: -10px;
+  color: var(--text-primary-color);
 }
 
 .info-container {

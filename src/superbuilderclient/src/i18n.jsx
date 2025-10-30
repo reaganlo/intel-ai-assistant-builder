@@ -1,4 +1,4 @@
-﻿import i18n from "i18next";
+import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import Backend from "i18next-http-backend";
 import { invoke } from "@tauri-apps/api/core";
@@ -14,15 +14,54 @@ const LANG_MAPPING = {
   "zh-HK": "zh-Hant", // Hong Kong
   "zh-MO": "zh-Hant", // Macau
   "zh-Hant": "zh-Hant", // Generic Traditional Chinese
+  // Japanese
+  "ja": "ja-JP", // Japanese
+  "ja-JP": "ja-JP", // Japan
   // English
   en: "en",
+};
+
+// Supported languages configuration with display names
+const SUPPORTED_LANGUAGES = [
+  {
+    code: "en",
+    name: "English",
+    nativeName: "English"
+  },
+  {
+    code: "zh-Hans",
+    name: "Simplified Chinese",
+    nativeName: "简体中文"
+  },
+  {
+    code: "zh-Hant",
+    name: "Traditional Chinese", 
+    nativeName: "繁體中文"
+  },
+  {
+    code: "ja-JP",
+    name: "Japanese",
+    nativeName: "日本語"
+  }
+];
+
+// Helper function to get system language display name
+const getSystemLanguageLabel = (systemLng) => {
+  if (!systemLng) return "System";
+  
+  if (systemLng.startsWith("zh")) {
+    return "跟随系统";
+  } else if (systemLng === "ja-JP") {
+    return "システムに従う";
+  }
+  return "System";
 };
 
 const getSystemLanguage = async () => {
   try {
     const rawLang = await invoke("get_system_language");
 
-    // Normalize language codes (e.g. zh-Hans-SG â†’ zh-Hans)
+    // Normalize language codes (e.g. zh-Hans-SG → zh-Hans)
     const normalizedLang =
       rawLang
         .replace(/-[a-zA-Z]+$/, "") // Remove regional suffix
@@ -42,6 +81,9 @@ const getSystemLanguage = async () => {
         ? "zh-Hant"
         : "zh-Hans";
     }
+    if (browserLang.startsWith("ja")) {
+      return "ja-JP";
+    }
     return "en";
   }
 };
@@ -58,7 +100,7 @@ const getSettingLanguage = async () => {
   }
 
   // Supported languages list
-  const supportedLngs = ["en", "zh-Hans", "zh-Hant"];
+  const supportedLngs = SUPPORTED_LANGUAGES.map(lang => lang.code);
   if (supportedLngs.includes(savedLng)) {
     return savedLng;
   }
@@ -76,7 +118,7 @@ const initializeI18n = async (lng) => {
     .init({
       lng: targetLng,
       fallbackLng: "en",
-      supportedLngs: ["en", "zh-Hans", "zh-Hant"],
+      supportedLngs: SUPPORTED_LANGUAGES.map(lang => lang.code),
       interpolation: {
         escapeValue: false,
       },
@@ -90,4 +132,4 @@ const initializeI18n = async (lng) => {
     });
 };
 
-export { getSystemLanguage, getSettingLanguage, initializeI18n };
+export { getSystemLanguage, getSettingLanguage, initializeI18n, SUPPORTED_LANGUAGES, getSystemLanguageLabel };

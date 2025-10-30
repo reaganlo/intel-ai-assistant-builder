@@ -1,6 +1,6 @@
 {
     "version": "0.6.0",
-    "default_doc_path": "./rag_docs",
+    "default_doc_path": "./test_files",
     "local_model_hub": "./pyllmsrv/local_models/",
     "Assistants": [
         {

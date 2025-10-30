@@ -1,4 +1,4 @@
-﻿.drag-n-drop-container {
+.drag-n-drop-container {
   margin-top: 20px;
   margin-bottom: 8px;
   padding: auto;
@@ -159,11 +159,10 @@
   font-size: 14px;
 }
 
-.manage-files,
-.manage-mcp-servers {
+.manage-files {
   display: flex;
   text-transform: none !important;
-  width: 350px;
+  width: 350px;  
   height: 30px;
   border-radius: 0px !important;
   padding: 2px 2px 2px 2px;
@@ -180,8 +179,7 @@
   justify-content: center;
 }
 
-.manage-files:disabled,
-.manage-mcp-servers:disabled {
+.manage-files:disabled {
   background-color: #d3d3d3 !important;
   color: #a9a9a9 !important;
   border: 1px solid #a9a9a9 !important;
@@ -189,20 +187,17 @@
 }
 
 .manage-files-img ,
-.manage-files:hover,
-.manage-mcp-servers:hover {
+.manage-files:hover {
   background-color: #f2f2f2;
   box-sizing: border-box;
 }
 
-.manage-files-img,
-.manage-mcp-servers-img {
+.manage-files-img {
   padding: 2px 2px 2px 2px;
   margin-right: 5%;
 }
 
-[disabled] .manage-files-img,
-[disabled] .manage-mcp-servers-img {
+[disabled] .manage-files-img {
   filter: opacity(0.5);
 }
 

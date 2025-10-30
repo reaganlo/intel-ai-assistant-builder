@@ -1,4 +1,4 @@
-﻿.MuiDialog-root {
+.MuiDialog-root {
   z-index: 1300;
 }
 
@@ -6,13 +6,18 @@
   margin: var(--topbar-height) 32px;
 }
 
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
   height: 100vh;
   overflow: hidden;
   border-radius: 5px;
-  font-family: "Roboto", sans-serif;
+  font-family: var(--locale-font-family, "Roboto", sans-serif);
+  /* Improve Japanese text rendering */
+  -webkit-font-feature-settings: "kern";
+  font-feature-settings: "kern";
+  text-rendering: optimizeLegibility;
 }
 
 :root {
@@ -23,26 +28,29 @@ body, html {
 }
 
 .mainwindow {
-  background-color: #ffffff;
+  background-color: var(--bg-color);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Set height to full viewport height */
+  height: 100vh;
+  /* Set height to full viewport height */
 }
-.topbar{
+
+.topbar {
   box-sizing: border-box;
   height: var(--topbar-height);
   width: 100%;
 }
 
-.appbody{
+.appbody {
   /* Set height to full viewport height minus the topbar height and border */
   height: calc(100vh - var(--topbar-height) - 1px);
-  border-bottom: 1px solid #d7d7d7;
-  border-right: 1px solid #d7d7d7;
+  border-bottom: 1px solid var(--bg-color);
+  border-right: 1px solid var(--bg-color);
   border-radius: 5px;
 }
-.sidebar{
+
+.sidebar {
   width: var(--sidebar-width);
   height: 100%;
   box-sizing: border-box;
@@ -50,19 +58,22 @@ body, html {
   position: relative;
   z-index: 100;
 }
-.chatbox{
-  width: calc(100% - var(--sidebar-width)); /* Set width to 100% minus the sidebar width */
+
+.chatbox {
+  width: calc(100% - var(--sidebar-width));
+  /* Set width to 100% minus the sidebar width */
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: center; /* Horizontally centers the content */
+  justify-content: center;
+  /* Horizontally centers the content */
   overflow: auto;
   z-index: 10;
   position: relative;
 }
 
 /* Add styling to the footer */
-.footer{
+.footer {
   position: fixed;
   left: 0;
   bottom: 0;
@@ -76,7 +87,7 @@ body, html {
   z-index: 1000;
 }
 
-.modal-content{
+.modal-content {
   color: #000000;
   padding: 0;
 }
@@ -84,10 +95,14 @@ body, html {
 
 
 .grayed-out {
-  opacity: 0.5; /* Or any value less than 1 to make it look faded */
-  background-color: #f0f0f0; /* Optional: change the background color */
-  pointer-events: none; /* Optional: to prevent interactions */
-  user-select: none; /* Optional: to prevent text selection */
+  opacity: 0.5;
+  /* Or any value less than 1 to make it look faded */
+  background-color: #f0f0f0;
+  /* Optional: change the background color */
+  pointer-events: none;
+  /* Optional: to prevent interactions */
+  user-select: none;
+  /* Optional: to prevent text selection */
 }
 
 .dl-button-container {

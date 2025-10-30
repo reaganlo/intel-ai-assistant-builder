@@ -1,4 +1,4 @@
-﻿.chat-container {
+.chat-container {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -13,7 +13,7 @@
 
 .top-bar-blur {
     align-self: flex-start;
-    font-family: "IntelOne Display Medium", "IntelOne Display", sans-serif;
+    font-family: var(--locale-font-family, "IntelOne Display Medium", "IntelOne Display", sans-serif);
     font-size: 10px;
 }
 
@@ -47,8 +47,8 @@
 }
 
 .sender-logo {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     display: flex;
     margin-right: 10px;
     font-size: 13px;
@@ -70,10 +70,10 @@
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 5px;
-    background-color: #ffffff;
+    background-color: var(--bg-color);
     box-sizing: border-box;
     font-size: 15px;
-    color: #555555;
+    color: var(--text-primary-color);
     text-align: left;
     line-height: normal;
     word-break: break-word;
@@ -82,9 +82,9 @@
 
 .message-text.user {
     border-radius: 5px;
-    background-color: #f2f2f2;
+    background-color: var(--divider-color);
     box-sizing: border-box;
-    color: #555555;
+    color: var(--text-primary-color);
     text-align: left;
     line-height: normal;
     padding-top: 15px;

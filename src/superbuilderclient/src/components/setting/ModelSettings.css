@@ -1,7 +1,7 @@
-﻿.accordion-section {
+.accordion-section {
     display: flex;
     flex-direction: column;
-    background-color: rgb(255, 255, 255);
+    background-color: var(--bg-color);
     padding: 10px;
     margin-bottom: 10px;
     gap: 15px;
@@ -63,11 +63,12 @@
 
 .accordion-content .accordion {
     width: 310px;
-    background-color: white;
+    background-color: var(--bg-color);
+    color: var(--text-primary-color);
 }
 
 .accordion-content .accordion-button {
-    background-color: white;
+    background-color: var(--bg-color);
 }
 
 .accordion-content .accordion-title {

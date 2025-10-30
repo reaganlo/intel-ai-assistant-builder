@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useState, useEffect, useRef } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { stat } from "@tauri-apps/plugin-fs";
@@ -133,19 +133,36 @@ const FileManagementProvider = ({ children }) => {
   const updateTable = async () => {
     console.log("Updating Table....");
 
-    // get the file list data and split into 3 lists
-    const fileListJSON = await invoke("get_file_list");
-    // console.log("Files JSON: ", fileListJSON);
-    const fileList = JSON.parse(fileListJSON);
-    console.log("Files: ", fileList);
+    try {
+      // get the file list data and split into 3 lists
+      const fileListJSON = await invoke("get_file_list");
+      // console.log("Files JSON: ", fileListJSON);
+      
+      // Check if the response is an error message
+      if (fileListJSON.startsWith("ERROR:")) {
+        console.error("Backend returned error:", fileListJSON);
+        setFiles([]);
+        setCompletedFiles([]);
+        setFilesLoaded(true);
+        return;
+      }
+      
+      const fileList = JSON.parse(fileListJSON);
+      console.log("Files: ", fileList);
 
-    const completedFileRows = await createRows(fileList, "ready", 0);
-    setCompletedFiles(completedFileRows);
-    setFiles(completedFileRows);
-    // console.log(completedFileRows);
+      const completedFileRows = await createRows(fileList, "ready", 0);
+      setCompletedFiles(completedFileRows);
+      setFiles(completedFileRows);
+      // console.log(completedFileRows);
 
-    setSelectedFiles([]); // clear all selected items in the table
-    setFilesLoaded(true); // files are ready for display (if not already true)
+      setSelectedFiles([]); // clear all selected items in the table
+      setFilesLoaded(true); // files are ready for display (if not already true)
+    } catch (error) {
+      console.error("Failed to update file table:", error);
+      setFiles([]);
+      setCompletedFiles([]);
+      setFilesLoaded(true);
+    }
   };
 
   const isValidExtension = (filepath, allowedTypes) => {

@@ -1,0 +1,399 @@
+{
+  "minimum_hardware": {
+    "title": "最小ハードウェア要件が満たされていません",
+    "part_1": "お使いのハードウェアはこのソフトウェアと互換性がありません。",
+    "part_2": "最小ハードウェア要件をご確認ください：",
+    "part_3": "CPU: Intel® Core™ Ultra プロセッサ シリーズ 1(開発コード名: Meteor Lake)",
+    "part_4": "メモリ(RAM): 16GB",
+    "part_5": "ストレージ: 1つのAIアシスタント用LLMあたり4GB",
+    "part_6": "GPU: 内蔵Intel® Graphics (ドライバーバージョン30.0.100.9955以降）",
+    "part_7": "ネットワーク: ブロードバンド接続 (LMおよびその他のコンポーネントのダウンロード用)",
+    "model_download_status": "モデルダウンロード状況"
+  },
+  "non_validate_hardware": {
+    "title": "警告：お使いのハードウェアは検証されていません",
+    "part_1": "お使いのシステムはSuperBuilderチームによって検証されていません。",
+    "part_2": "このソフトウェアを引き続きご利用いただけますが、最適なパフォーマンスを保証できないことにご注意ください。"
+  },
+  "draganddrop": {
+    "button": {
+      "fiels": "ファイルを追加",
+      "folders": "フォルダを追加",
+      "manage_kb": "ナレッジベースを管理",
+      "manage_mcp": "MCPサーバーを管理"
+    },
+    "title": "ナレッジベース",
+    "subtitle": "\n• ナレッジベースにファイルを追加して、アシスタントをより賢くしましょう。専門的なクエリには、直接クエリに添付してください。\n",
+    "area": "ファイルをここにドラッグアンドドロップ",
+    "file_manage": {
+      "back": "アシスタントに戻る",
+      "add": "ナレッジベースにファイルを追加",
+      "cancel": "キャンセル",
+      "remove": "ナレッジベースから削除",
+      "add_file_window_title": "Intel AIA用ファイルを追加",
+      "add_folder_window_title": "Intel AIA用フォルダを追加",
+      "resp_display_file_error": "ファイル処理が利用できません。\nしばらく待ってから再試行してください。",
+      "resp_cancel_file_upload": "ファイルの追加をキャンセル中です。しばらくお待ちください……\nすでに追加されたファイルは削除されません。",
+      "resp_upload_files": "ファイルを追加できません。現在サポートされていないファイル形式です。",
+      "resp_upload_files_preparing": "準備中……",
+      "resp_removing_selected_files": "ファイルを削除中……",
+      "resp_removed_selected_files": "ファイルを削除しました……",
+      "resp_adding_file": "ファイルを追加中：\n",
+      "resp_upload_completed_1": "ファイルを追加できませんでした。\nより小さなファイルを試すか、エラーが続く場合はアプリを再起動してください。",
+      "resp_upload_completed_2": "一部のファイルを追加できませんでした。\nキャンセルされた、または既に追加済み、またはサポートされていない形式でした。\n追加されたファイル：",
+      "resp_upload_completed_3": "ファイルを追加できませんでした。\nキャンセルされた、または既に追加済み、またはサポートされていない形式です。"
+    }
+  },
+  "mcp": {
+    "ui": {
+      "back": "スーパーエージェントに戻る",
+      "add": "MCPサーバーを追加",
+      "edit": "MCPサーバー情報を編集",
+      "remove": "MCPサーバーを削除",
+      "mcp_server": "MCPサーバー",
+      "mcp_server_name": "MCPサーバー名",
+      "mcp_server_url": "MCPサーバーURL",
+      "mcp_server_env": "環境変数(オプション)",
+      "mcp_server_env_placeholder": "例：MY_ENV_1=My_ENV_VALUE_1 MY_ENV_2=My_ENV_VALUE_2",
+      "mcp_server_env_error": "環境変数の形式はKEY=VALUEである必要があります",
+      "mcp_server_command": "MCPサーバーのコマンド",
+      "mcp_server_command_args": "MCPサーバーのコマンド引数(オプション)",
+      "mcp_server_info": "MCPサーバーからの情報",
+      "mcp_server_info_empty": "MCPサーバー情報が利用できません。表示前にMCPサーバーを起動してください。",
+      "mcp_server_info_fetching": "MCPサーバー情報を取得中...",
+      "url_radio": "URL",
+      "command_radio": "コマンド",
+      "add_button": "追加",
+      "save_button": "保存",
+      "close_button": "閉じる",
+      "disabled_checkbox": "無効",
+      "load_button": "MCPサーバーを読み込み",
+      "mcp_agent": "MCPエージェント",
+      "add_agent": "新しいMCPエージェント情報を追加",
+      "edit_agent": "MCPエージェント情報を編集",
+      "add_agent_button": "エージェントを追加",
+      "mcp_agent_name": "MCPエージェント名",
+      "mcp_agent_description": "説明",
+      "mcp_agent_system_prompt": "システムプロンプト",
+      "mcp_agent_mcp_server": "MCPサーバー",
+      "mcp_agent_mcp_server_placeholder": "MCPサーバーを選択",
+      "mcp_agent_mcp_server_note": "注意: エージェントを開始するには、最低1つのMCPサーバーが必要です",
+      "confirm_remove": "削除の確認",
+      "confirm_remove_message": "選択された設定が削除されます。よろしいですか?",
+      "remove_button": "削除"
+    },
+    "server_table": {
+      "command_title": "コマンド付きMCPサーバー",
+      "url_title": "URL付きMCPサーバー",
+      "name": "MCPサーバー名",
+      "url": "URL",
+      "env": "環境変数",
+      "command": "コマンド",
+      "command_args": "コマンド引数",
+      "actions": "アクション",
+      "start": "開始",
+      "stop": "停止",
+      "starting": "開始中",
+      "stopping": "停止中",
+      "edit": "編集"
+    },
+    "agent_table": {
+      "agent_name": "エージェント名",
+      "agent_description": "説明",
+      "system_prompt": "システムプロンプト",
+      "mcp_server": "MCPサーバー",
+      "actions": "アクション",
+      "remove": "削除"
+    }
+  },
+  "chat": {
+    "new_session": "<新しいセッション>",
+    "edit_tips": "編集",
+    "remove_tips": "削除",
+    "placeholder": "ここに質問を入力してください",
+    "placeholder_generate_image": "画像を生成",
+    "processing": "処理中...",
+    "disclaimer_part_1": "免責事項：チャットボットとやりとりしています。",
+    "disclaimer_part_2": "チャットボットは間違いを犯す可能性があります。重要な情報・判断は、別のソースも併せて確認してください。",
+    "imageinfo": "画像関連のタスクが完了したら、標準的なクエリでより良い応答を得るために、テキストLLMに戻してください。",
+    "attach": {
+      "title": "特別なクエリ用に一時ファイルを添付",
+      "summary": "クエリ要約",
+      "summary_tips": "要約とクエリのために最大3つの文書(PDF、DOCX、TXT形式)を添付してください。",
+      "data": "表形式データのクエリ",
+      "data_tips": "表形式の1つのファイル(XLSX、CSV)を添付してください。最初の行に列ヘッダー、その後の行にデータが含まれている形式です。",
+      "images": "画像のクエリ",
+      "images_tips": "詳細を抽出してクエリを実行するために最大3つの画像(PNG、JPEG、JPG)を添付してください。Phi-3.5-visionなどのビジョンモデルが必要です。",
+      "generate_images": "画像を生成",
+      "resume": "履歴書マッチング",
+      "resume_tips": "履歴書(PDF、DOCX、TXT)を添付し、その後に求人情報のプロンプトを続けて評価と追加クエリを行います。",
+      "clear": "クリア",
+      "clear_tips": "特別なクエリを終了して、共通のナレッジベースで続行します。",
+      "all_features": "すべての機能を有効にする",
+      "file_path_dialog_title_summarize": "要約クエリ用のファイルを選択",
+      "file_path_dialog_title_table": "テーブルクエリ用のファイルを選択",
+      "file_path_dialog_title_resume": "履歴書クエリ用のファイルを選択",
+      "file_path_dialog_title_image": "画像クエリ用のファイルを選択"
+    },
+    "user": {
+      "notice": "画像関連のタスクが完了したら、標準的なクエリでより良い応答を得るために、テキストLLMに戻してください。",
+      "welcome": "ようこそ、",
+      "subwelcome": "今日は何をお手伝い致しますか？",
+      "current_model": "現在のモデル："
+    }
+  },
+  "topbar": {
+    "title": "について ",
+    "content_part_1": "このアシスタントはインテル® アシスタント・ビルダーフレームワークをベースにしています。アシスタントは、このコンピュータのハードウェアのAI PC機能を使用するように最適化されています。最新のAI PC情報と製品の提供状況については、",
+    "content_part_2": "Intel.com/AIPC",
+    "content_part_3": "をご覧ください。",
+    "content_part_4": "Assistant Builder アプリケーションパッケージ：",
+    "content_part_4_1": "こちらをご覧ください",
+    "content_part_5": "Intel® AI Assistant Builder ウェブサイト",
+    "content_part_6": "チャットモデル：",
+    "content_part_7": "埋め込みモデル：",
+    "content_part_8": "リランカーモデル：",
+    "content_part_9": "オープンソースコンポーネントとライセンス情報",
+    "content_part_10": "OK",
+    "view_model_link": "モデルカードを表示"
+  },
+  "sidebar": {
+    "chat_history": "セッション履歴",
+    "new_chat": "新しいセッション",
+    "report_bug": "バグを報告",
+    "help": "ヘルプガイド",
+    "setting": "アプリ設定",
+    "admin_mode": "管理者モード",
+    "mode_enable": "有効",
+    "mode_disable": "無効",
+    "mcp_manager": "MCPマネージャー"
+  },
+  "model_downloader": {
+    "head": {
+      "part_1": "初回セットアップ",
+      "part_2": "必要なファイルを取得し、AIアシスタントモデルを読み込み中"
+    },
+    "body": {
+      "consent_message": "以下にリストされたモデルが必要です。それぞれの利用規約を確認し、「続行」をクリックしてください。",
+      "confirm_text": "モデルカードとライセンスを確認しました。すべての利用規約に同意し、サードパーティモデルをダウンロードします。",
+      "button_proceed": "続行",
+      "button_cancel": "キャンセル",
+      "status_downloading": "ダウンロード中",
+      "model_folder": "モデルフォルダ：",
+      "status_complete": "モデルのダウンロード完了 - さあ、始めましょう",
+      "status_failed": "モデルのダウンロードに失敗しました。",
+      "troubleshooting_prefix": "ヘルプについては、リンク内の「ヒント、トラブルシューティング、既知の問題」章をご覧ください",
+      "troubleshooting_link": "リンク",
+      "embedding_model": "埋め込みモデル",
+      "ranker_model": "リランカーモデル",
+      "chat_model": "チャットモデル"
+    }
+  },
+  "email": {
+    "title_1": "メールアシスタント",
+    "title_2": "メールの下書きです。自由に編集してください。",
+    "subject": "件名：",
+    "message": "本文：",
+    "note": "Outlookへの送信機能を使用する場合、Outlookを既定のメールクライアントに設定する必要があります。",
+    "limit_1": "現在のバージョンでは",
+    "limit_2": "文字以下のメッセージをサポートしています。この制限の解除できるよう取り組んでいます。",
+    "button": "Outlookに送信"
+  },
+  "setting": {
+    "fluid_modal": "SuperBuilder用の独自モデルを構築",
+    "appearance": {
+      "title": "外観",
+      "description": "アシスタントの名前、外観、操作感を設定"
+    },
+    "name": "名前",
+    "visuals": {
+      "title": "ビジュアル",
+      "logo": "ロゴ",
+      "logo_update": "新しいロゴをアップロード",
+      "color": {
+        "title": "色",
+        "pick": "色を選択",
+        "primary": "プライマリーカラー",
+        "primary_text": "プライマリー テキスト&アイコンカラー",
+        "secondary": "セカンダリーカラー"
+      },
+      "language": {
+        "title": "言語",
+        "subtitle": "UI言語を選択"
+      },
+      "button": {
+        "reset": "リセット",
+        "apply": "適用"
+      }
+    },
+    "versionandupdate": {
+      "title": "バージョンと更新",
+      "description": "最新の機能・更新を取得",
+      "subtitle": "現在のバージョン：",
+      "button": "更新を確認"
+    },
+    "models": {
+      "title": "モデル",
+      "description": "アクティブなAIモデルを表示・変更",
+      "recommended": "推奨モデル",
+      "other": "その他のモデル",
+      "current": {
+        "currentllm": "現在のLLM",
+        "currentllm_tips": "*変更時に、モデルのダウンロードが必要となる可能性があります",
+        "embedding": "現在の埋め込みモデル",
+        "embedding_tips": "*変更時に、モデルのダウンロードが必要となる可能性があります",
+        "ranker": "現在のリランカーモデル",
+        "ranker_tips": "*変更時に、モデルのダウンロードが必要となる可能性があります",
+        "endpoint": "モデルダウンロード エンドポイント",
+        "endpoint_tips1": "ダウンロードに問題がある場合は、別のダウンロード エンドポイントをお試しください。",
+        "endpoint_tips2": "中国本土のユーザーは、modelscopeエンドポイントを選択してください。",
+        "no_other_model": "他に利用可能なモデルはありません",
+        "loading": "読み込み中 ",
+        "all_models": "すべてのモデル"
+      },
+      "upload": {
+        "title": "モデルをアップロード",
+        "type": "モデルタイプ: ",
+        "type_chat": "チャット",
+        "type_embedding": "埋め込み",
+        "type_ranker": "リランカー",
+        "method": "アップロード方法: ",
+        "method_copy": "フォルダをコピー",
+        "method_move": "フォルダを移動",
+        "upload_button": "モデルをアップロード",
+        "upload_button_tips": "*モデルの正確性を保証するのはユーザーの責任となります*",
+        "conversion": "モデル変換",
+        "select_a_folder": "フォルダを選択",
+        "tips": "独自モデルのアップロード方法を学ぶにはここをクリック"
+      },
+      "conversion": {
+        "title": "OpenVINOモデル変換",
+        "form_1": "Hugging Faceモデル IDまたはローカルパス(テキストモデルのみ)",
+        "form_2": "Hugging Faceトークン ID(オプション)",
+        "form_3": "OpenVINOコマンドフラグ(オプション)",
+        "tips_3_1": "OpenVINOフラグの例についてはここをクリック",
+        "model_type": "モデルタイプ：",
+        "chat": "チャット",
+        "embedder": "埋め込み",
+        "reranker": "リランカー",
+        "agreement": "すべてのライセンス、利用規約を確認し、同意します。",
+        "convert_button": "モデルを変換",
+        "notice_1": "モデルは以下の場所からいつでもアクティブ化できます：",
+        "notice_2": "設定 > モデル > モデルを選択",
+        "notice_3": "ドロップダウンリストから希望のモデルを選択してください。",
+        "close_button": "閉じる",
+        "active_button": "モデルをアクティブ化してウィンドウを閉じる"
+      },
+      "deletion": {
+        "title": "モデル削除の確認",
+        "description": "削除しようとしています",
+        "description_2": "この操作は元に戻せません。",
+        "button": {
+          "remove": "削除",
+          "cancel": "キャンセル"
+        }
+      }
+    },
+    "parameters": {
+      "title": "パラメータ",
+      "description": "アシスタントの動作を変更（上級ユーザーのみ）",
+      "reset_button": "デフォルトにリセット",
+      "llm": {
+        "title": "LLM",
+        "description": ""
+      },
+      "high_value": "高い値：",
+      "low_value": "低い値："
+    },
+    "systeminfo": {
+      "title": "システム情報",
+      "description": "システムのハードウェア情報を表示"
+    },
+    "confimportexport": {
+      "title": "設定のエクスポート/インポート",
+      "description": "現在の設定をエクスポートまたはインポート",
+      "button": {
+        "import": "インポート",
+        "export": "エクスポート"
+      },
+      "info": {
+        "suc": "設定のエクスポートが完了しました！",
+        "location": "エクスポート場所：",
+        "filename": "エクスポートファイル名：",
+        "ok": "OK"
+      }
+    },
+    "alert": {
+      "title": "はサポートされていません",
+      "part_1": "お使いのハードウェアは、NPU用に高度に最適化されたこのモデルと互換性がありません。",
+      "part_2": "最小ハードウェア要件をご確認ください：",
+      "part_3": "CPU: Intel® Core™ Ultra プロセッサ シリーズ 2 (開発コード名: Lunar Lake)",
+      "part_4": "NPUドライバー: "
+    },
+    "notice": {
+      "steps": {
+        "title": "モデル準備の手順は以下のとおりです：",
+        "step1": "まず、OpenVINOサポート付きのHuggingFaceのOptimumパッケージをインストールしてください。",
+        "step2": "現在のフレームワークはtransformersバージョン4.40.1が必要です。",
+        "step3": "次に、以下のコマンドを使用してint4 symmetric 形式でモデルをダウンロードし量子化します。",
+        "step3_note": "ここで<1><MODEL_ID></1>はHuggingFaceのモデルIDに対応し、<1><OUTPUT></1>は生成されたOVモデルが保存されるパスです。",
+        "step4": "LLMの場合、<1>--task text-generation-with-past</1>を使用でき、<1>group_size</1>、<1>sym</1>、<1>ratio</1>などのパラメータが必要になります😊",
+        "step5": "埋め込みおよびリランカーモデルの場合、手順はLLMと非常に似ていますが、これらのケースではタスクタイプを指定する必要があるという違いがあります。この場合、int8の量子化を適用しています。",
+        "step5_embedder": "埋め込みモデルの場合：",
+        "step5_reranker": "リランカーの場合：",
+        "step6": "設定パネルの「モデルをアップロード」ボタンを使用してモデルをアップロードしてください。アップロード用のモデルzipファイルを準備する際は、以下の例に示すように、フォルダにサブフォルダなしで直接ファイルが含まれていることを確認してください。"
+      }
+    }
+  },
+  "status": {
+    "could_not_load_model": "モデルを読み込めませんでした。別のモデルで再試行してください",
+    "checking_api_service": "APIサービスを確認中",
+    "hardware_not_met": "以下の最小ハードウェア要件が満たされていません: Intel Core Ultra シリーズ 1、16GB RAM、4GBストレージ、統合Intel Graphics、およびインターネット接続",
+    "failed_to_connect_service": "APIサービスへの接続に失敗しました。アプリを再起動してください。",
+    "checking_local_llm": "ローカルLLMモデルを確認中",
+    "awaiting_download_models": "モデルダウンロードへの同意を待機中",
+    "downloading_models": "LLMモデルをダウンロード中",
+    "downloading_retry": "LLMモデルのダウンロードに失敗しました。再試行中……",
+    "downloading_retry_1": "LLMモデルのダウンロードに失敗しました。再試行",
+    "downloading_retry_2": "回目……",
+    "failed_to_download_models": "モデルのダウンロードに失敗しました。確認してアプリを再起動してください。",
+    "checking_backend": "バックエンドを確認中……",
+    "backend_not_ready": "バックエンドの準備ができていません。確認してアプリを再起動してください。",
+    "loading_models": "モデルを読み込み中……",
+    "updating_model": "セッションLLMモデルを更新中: ",
+    "ready": "準備完了",
+    "could_not_load_model_2": "モデルを読み込めませんでした"
+  },
+  "notification": {
+    "close_button": "閉じる",
+    "portal_button": "Webポータルに移動",
+    "header": "更新を確認",
+    "fetch_update": "更新を取得中……",
+    "failed_to_fetch_update": "更新の取得に失敗しました",
+    "title": "Intel(R) AIアシスタント ビルダー",
+    "update_available": "更新が利用可能です",
+    "update_to_date": "アプリケーションは最新です",
+    "install_version": "インストール済みバージョン：",
+    "update_version": "最新バージョン："
+  },
+  "feedback": {
+    "placeholder_1": "回答を詳しく説明してください",
+    "placeholder_2": "正しい回答を提供してください",
+    "copy_to_email": "メール下書きウィンドウにコピーしました！",
+    "feedback_received": "フィードバックを受信しました！"
+  },
+  "fluidmodel": {
+    "close_button": "閉じる"
+  },
+  "model_incompatible": {
+    "header_model_updates_required": "モデルの更新が必要です",
+    "incompatible_models_message": "以下のモデルはこのバージョンと互換性がないため、削除して再ダウンロードする必要があります：",
+    "preparing_remove_models": "モデルの削除を準備中...",
+    "removing_model": "{{modelName}}を削除中（{{current}}/{{total}})……",
+    "remove_models_success": "すべてのモデルが正常に削除されました。アプリケーションを再起動中……",
+    "remove_models_failed": "一部のモデルの削除に失敗しました：{{failedModels}}",
+    "remove_models_failed_generic": "モデルの削除に失敗しました。",
+    "remove_models_error": "エラー：{{error}}",
+    "button_remove_models": "モデルを削除"
+  }
+}

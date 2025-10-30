@@ -6,15 +6,100 @@ import { useTranslation } from "react-i18next";
 import "./McpServerTable.css";
 import useMcpStore from "../../stores/McpStore";
 import { ChatContext } from "../context/ChatContext";
+import { 
+  MCP_TABLE_STYLES, 
+  createTextColumn, 
+  generateUniqueRows, 
+  MCP_DATAGRID_PROPS,
+  createActionButton 
+} from "./mcpTableShared";
 
-export default function McpAgentTable() {
+export default function McpAgentTable({ layoutMode = "vertical" }) {
   const { t } = useTranslation();
-  const mcpAgents = useMcpStore((state) => state.mcpAgents);
+  const rawMcpAgents = useMcpStore((state) => state.mcpAgents);
   const loadingMcpAgents = useMcpStore((state) => state.loadingMcpAgents);
   const runningMcpAgents = useMcpStore((state) => state.runningMcpAgents);
   const mcpServers = useMcpStore((state) => state.mcpServers);
   const mcpRemoveModalOpen = useMcpStore((state) => state.mcpRemoveModalOpen);
   const { isChatReady, setIsChatReady } = useContext(ChatContext);
+
+  // Use shared utility to generate unique rows
+  const mcpAgents = React.useMemo(() => 
+    generateUniqueRows(rawMcpAgents, 'name'), 
+    [rawMcpAgents]
+  );
+
+  // Helper function to create server IDs column
+  const createServerIdsColumn = () => ({
+    field: "server_ids",
+    headerName: t("mcp.agent_table.mcp_server"),
+    flex: 1,
+    minWidth: 150,
+    renderCell: (params) => {
+      if (!params.value || !Array.isArray(params.value)) {
+        return <Box sx={MCP_TABLE_STYLES.cellText}>{''}</Box>;
+      }
+      const names = params.value
+        .map((id) => {
+          const server = mcpServers.find((s) => s.id === id);
+          return server ? server.server_name : id;
+        })
+        .join(", ");
+      return <Box sx={MCP_TABLE_STYLES.cellText}>{names}</Box>;
+    },
+  });
+
+  // Helper function to create actions column
+  const createActionsColumn = () => ({
+    field: "actions",
+    headerName: t("mcp.agent_table.actions"),
+    flex: 1,
+    minWidth: 234,
+    sortable: false,
+    filterable: false,
+    renderCell: (params) => {
+      const isRunning = runningMcpAgents.includes(params.row.name);
+      const isLoading = loadingMcpAgents.includes(params.row.name);
+      
+      return (
+        <Box sx={MCP_TABLE_STYLES.actionsContainer}>
+          {isRunning ? (
+            createActionButton(
+              t("mcp.server_table.stop"),
+              "mcp-table-status-btn status-btn-stop",
+              !isChatReady,
+              () => handleStopMcpAgent(params.row.name),
+              isLoading,
+              t("mcp.server_table.stopping")
+            )
+          ) : (
+            createActionButton(
+              t("mcp.server_table.start"),
+              "mcp-table-status-btn status-btn-start",
+              !isChatReady || (params.row.server_ids && params.row.server_ids.length === 0),
+              () => handleStartMcpAgent(params.row.name),
+              isLoading,
+              t("mcp.server_table.starting")
+            )
+          )}
+          
+          {createActionButton(
+            t("mcp.server_table.edit"),
+            "mcp-table-status-btn",
+            !isChatReady || isRunning,
+            () => handleDetailsClick(params.row.id)
+          )}
+          
+          {createActionButton(
+            t("mcp.agent_table.remove"),
+            "mcp-table-status-btn status-btn-remove",
+            !isChatReady || isRunning,
+            () => handleRemoveMcpAgent(params.row.id)
+          )}
+        </Box>
+      );
+    },
+  });
 
   const handleDetailsClick = (id) => {
     const selectedAgent = mcpAgents.find((agent) => agent.id === id);
@@ -50,127 +135,26 @@ export default function McpAgentTable() {
     setIsChatReady(true);
   };
 
-  const commandColumns = [
-    {
-      field: "name",
-      headerName: t("mcp.agent_table.agent_name"),
-      flex: 0.5,
-    },
-    {
-      field: "desc",
-      headerName: t("mcp.agent_table.agent_description"),
-      flex: 1,
-    },
-    {
-      field: "message",
-      headerName: t("mcp.agent_table.system_prompt"),
-      flex: 1,
-    },
-    {
-      field: "server_ids",
-      headerName: t("mcp.agent_table.mcp_server"),
-      flex: 1,
-      renderCell: (params) => {
-        if (!params.value || !Array.isArray(params.value)) return "";
-        const names = params.value
-          .map((id) => {
-            const server = mcpServers.find((s) => s.id === id);
-            return server ? server.server_name : id;
-          })
-          .join(", ");
-        return names;
-      },
-    },
-    {
-      field: "actions",
-      headerName: t("mcp.agent_table.actions"),
-      flex: 1,
-      minWidth: 234,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => {
-        const isWide = window.innerWidth > 1750;
-        const loadingPosition = isWide ? "end" : "center";
-        return (
-          <>
-            {runningMcpAgents.includes(params.row.name) ? (
-              <Button
-                size="small"
-                variant="contained"
-                disabled={!isChatReady}
-                loading={loadingMcpAgents.includes(params.row.name)}
-                loadingPosition={loadingPosition}
-                className={"mcp-table-status-btn status-btn-stop"}
-                onClick={() => handleStopMcpAgent(params.row.name)}
-              >
-                {loadingMcpAgents.includes(params.row.name)
-                  ? isWide
-                    ? t("mcp.server_table.stopping")
-                    : ""
-                  : t("mcp.server_table.stop")}
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                disabled={!isChatReady || params.row.server_ids.length === 0}
-                loading={loadingMcpAgents.includes(params.row.name)}
-                loadingPosition={loadingPosition}
-                size="small"
-                className={"mcp-table-status-btn status-btn-start"}
-                onClick={() => handleStartMcpAgent(params.row.name)}
-              >
-                {loadingMcpAgents.includes(params.row.name)
-                  ? isWide
-                    ? t("mcp.server_table.starting")
-                    : ""
-                  : t("mcp.server_table.start")}
-              </Button>
-            )}
-            <Button
-              size="small"
-              variant="contained"
-              className="mcp-table-status-btn"
-              disabled={
-                !isChatReady || runningMcpAgents.includes(params.row.name)
-              }
-              sx={{ marginLeft: 1 }}
-              onClick={() => handleDetailsClick(params.row.id)}
-            >
-              {t("mcp.server_table.edit")}
-            </Button>
-            <Button
-              size="small"
-              variant="contained"
-              className="mcp-table-status-btn status-btn-remove"
-              disabled={
-                !isChatReady || runningMcpAgents.includes(params.row.name)
-              }
-              sx={{ marginLeft: 1 }}
-              onClick={() => handleRemoveMcpAgent(params.row.id)}
-            >
-              {t("mcp.agent_table.remove")}
-            </Button>
-          </>
-        );
-      },
-    },
-  ];
+  const commandColumns = React.useMemo(() => [
+    createTextColumn("name", t("mcp.agent_table.agent_name"), 0.5, 120),
+    createTextColumn("desc", t("mcp.agent_table.agent_description"), 1, 150),
+    createTextColumn("message", t("mcp.agent_table.system_prompt"), 1, 200),
+    createServerIdsColumn(),
+    createActionsColumn(),
+  ], [t, mcpServers, runningMcpAgents, loadingMcpAgents, isChatReady]);
+
+  const paperStyle = layoutMode === "horizontal" ? MCP_TABLE_STYLES.paperHorizontal : MCP_TABLE_STYLES.paper;
+  const dataGridStyle = layoutMode === "horizontal" ? MCP_TABLE_STYLES.dataGridHorizontal : MCP_TABLE_STYLES.dataGrid;
 
   return (
-    <Box sx={{ width: "100%", height: "100%" }}>
-      <Paper sx={{ height: "100%", width: "100%", overflow: "auto" }}>
+    <Box sx={MCP_TABLE_STYLES.container}>
+      <Paper sx={paperStyle}>
         <DataGrid
           rows={mcpAgents}
           columns={commandColumns}
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 10 },
-            },
-          }}
-          pageSizeOptions={[5, 10, 25, 50]}
           onRowDoubleClick={(params) => handleDetailsClick(params.row.id)}
-          disableRowSelectionOnClick
-          sx={{ height: "95%" }}
+          sx={dataGridStyle}
+          {...MCP_DATAGRID_PROPS}
         />
       </Paper>
     </Box>

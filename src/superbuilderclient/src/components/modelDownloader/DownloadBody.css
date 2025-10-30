@@ -1,4 +1,4 @@
-﻿.download-body {
+.download-body {
   padding: 20px 40px;
   width: 85%;
   word-wrap: break-word;
@@ -17,15 +17,20 @@
 
 .consent-message {
   font-size: 16px;
+  color: var(--text-primary-color);
 }
 
 .consent-confirm-text {
   font-size: 14px;
-  color: #333333;
+  color: var(--text-secondary-color);
   margin-top: 20px;
   margin-bottom: 5px;
   line-height: 1;
   text-align: left;
+}
+
+.consent-model {
+  color: var(--text-primary-color);
 }
 
 .consent-button-group {
@@ -99,4 +104,8 @@
 .troubleshooting-link {
   padding-top: 10px;
   text-align: center;
+}
+
+.download-status-text {
+  color: var(--text-primary-color);
 }

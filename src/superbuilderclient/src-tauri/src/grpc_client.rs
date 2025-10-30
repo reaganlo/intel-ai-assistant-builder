@@ -1,17 +1,17 @@
-﻿use super::config::Config as MyConfig;
+use super::config::Config as MyConfig;
 use super::status as MyStatus;
 use futures::stream::StreamExt;
 use std::sync::Arc;
 use std::{ env, path::PathBuf };
 use super_builder::super_builder_client::SuperBuilderClient;
 use super_builder::{ ChatRequest, CheckHealthRequest };
-use super_builder::prompt_options::{
-    GenericPrompt,
-    ScoreDocumentsPrompt,
-    ScoreResumesPrompt,
-    SummarizePrompt,
-    QueryImagesPrompt,
-    QueryTablesPrompt,
+use super_builder::prompt_options::{ 
+    GenericPrompt, 
+    ScoreDocumentsPrompt, 
+    ScoreResumesPrompt, 
+    SummarizePrompt, 
+    QueryImagesPrompt, 
+    QueryTablesPrompt, 
     SuperAgentPrompt,
 };
 use tauri::State;
@@ -41,13 +41,13 @@ pub enum PromptType {
     #[serde(rename = "GenericPrompt")]
     GenericPrompt {},
     #[serde(rename = "ScoreResumesPrompt")]
-    ScoreResumesPrompt {
-        is_scoring_criteria: bool
+    ScoreResumesPrompt { 
+        is_scoring_criteria: bool 
     },
     #[serde(rename = "ScoreDocumentsPrompt")]
-    ScoreDocumentsPrompt {
-        is_scoring_criteria: bool,
-        include_reasoning: bool
+    ScoreDocumentsPrompt { 
+        is_scoring_criteria: bool, 
+        include_reasoning: bool 
     },
     #[serde(rename = "SummarizePrompt")]
     SummarizePrompt {},
@@ -255,7 +255,7 @@ pub async fn mw_say_hello(client: State<'_, SharedClient>) -> Result<String, Str
 
     // Extract the actual HealthReply message from the tonic::Response
     let reply = response.into_inner();
-    println!("reply {}", reply.message.to_string());
+    // println!("reply {}", reply.message.to_string());
     Ok(reply.message.to_string())
 }
 
@@ -780,7 +780,7 @@ pub async fn update_db_models(
 ) -> Result<String, String> {
     let mut client_guard = client.lock().await;
     let db_client_ref = client_guard.as_mut().ok_or("Client not initialized")?;
-    /*
+    /* 
     let mut models_list: Vec<LlmModel> = serde_json::from_str(&models_json).map_err(|e| format!("Failed to parse models JSON: {}", e))?;
 
     for model in &mut models_list {
@@ -835,7 +835,7 @@ pub async fn convert_model(
 #[tauri::command]
 pub async fn validate_model(
     client: tauri::State<'_, SharedClient>,
-    model_path: String,
+    model_path: String, 
     model_type: Option<String>,
 ) -> Result<bool, String> {
     let mut client_guard = client.lock().await;

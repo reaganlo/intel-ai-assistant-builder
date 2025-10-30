@@ -1,4 +1,4 @@
-﻿{
+{
   "minimum_hardware": {
     "title": "未满足最低硬件规格要求",
     "part_1": "您的硬件与此软件不兼容",
@@ -47,13 +47,15 @@
   "mcp": {
     "ui": {
       "back": "返回问答界面",
-      "add": "添加 MCP 服务器信息",
+      "add": "添加 MCP 服务器",
       "edit": "编辑 MCP 服务器信息",
-      "remove": "从 MCP 服务器列表中移除",
+      "remove": "移除 MCP 服务器",
       "mcp_server": "MCP 服务器",
       "mcp_server_name": "MCP 服务器名称",
       "mcp_server_url": "MCP 服务器 URL",
-      "mcp_server_env": "MCP 服务器环境（可选）",
+      "mcp_server_env": "环境变量（可选）",
+      "mcp_server_env_placeholder": "例如：MY_ENV_1=My_ENV_VALUE_1 MY_ENV_2=My_ENV_VALUE_2",
+      "mcp_server_env_error": "环境变量格式应为 KEY=VALUE",
       "mcp_server_command": "MCP 服务器指令",
       "mcp_server_command_args": "MCP 服务器指令参数（可选）",
       "mcp_server_info": "MCP 服务器信息",
@@ -206,7 +208,10 @@
       "logo_update": "上传新徽标",
       "color": {
         "title": "主题色",
-        "pick": "颜色选择"
+        "pick": "颜色选择",
+        "primary": "顶部背景",
+        "primary_text": "顶部文字和图标",
+        "secondary": "侧边栏背景"
       },
       "language": {
         "title": "界面语言",

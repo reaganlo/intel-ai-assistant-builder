@@ -56,7 +56,7 @@
 
 .expand-text {
     font-size: 15px;
-    color: rgb(92, 92, 92);
+    color: var(--text-secondary-color);
     user-select: none;
     font-family: "IntelOne Display", sans-serif;
     width: 100%;
@@ -68,7 +68,7 @@
 }
 
 .active-file-count-text {
-    background-color: rgb(209, 209, 209);
+    background-color: var(--text-secondary-color);
     /* color: white; */
     width: 10px;
     height: 10px;
@@ -94,7 +94,7 @@
 
 .expand-text:hover {
     cursor: pointer;
-    color: black;
+    color: var(--text-primary-color);
 }
 
 .active-file-table-container {
@@ -117,7 +117,7 @@
     vertical-align: middle;
     padding: 10px;
     gap: 10px;
-    color: rgb(92, 92, 92);
+    color: var(--text-secondary-color);
     box-sizing: border-box;
 }
 

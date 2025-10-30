@@ -1,5 +1,11 @@
-﻿import "./DownloadBody.css";
-import { Button, Icon, CircularProgress, Typography, Checkbox } from "@mui/material";
+import "./DownloadBody.css";
+import {
+  Button,
+  Icon,
+  CircularProgress,
+  Typography,
+  Checkbox,
+} from "@mui/material";
 import Link from "@mui/material/Link";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -106,7 +112,7 @@ const DownloadBody = ({
             <p className="consent-message">
               {t("model_downloader.body.consent_message")}
             </p>
-            <ul>
+            <ul className="consent-model">
               {" "}
               {downloadData?.missing_models?.map((model) => (
                 <li key={model}>
@@ -174,7 +180,11 @@ const DownloadBody = ({
                 <Grid item xs={12}>
                   <Typography
                     variant="body2"
-                    sx={{ fontWeight: 600, textAlign: "left" }}
+                    sx={{
+                      fontWeight: 600,
+                      textAlign: "left",
+                      color: "var(--text-primary-color)",
+                    }}
                   >
                     {t("model_downloader.body.model_folder")}{" "}
                     {downloadData.models_dir_path}
@@ -192,7 +202,6 @@ const DownloadBody = ({
                 spacing={2}
                 sx={{
                   padding: 1,
-                  backgroundColor: "#fff",
                 }}
               >
                 <Grid item xs={1} sx={{ textAlign: "center" }}>
@@ -205,12 +214,18 @@ const DownloadBody = ({
                   )}
                 </Grid>
                 <Grid item xs={3}>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 500, color: "var(--text-primary-color)" }}
+                  >
                     {formatModelType(modelType)}
                   </Typography>
                 </Grid>
                 <Grid item xs={4}>
-                  <Typography variant="body2" sx={{ color: "#666" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "var(--text-secondary-color)" }}
+                  >
                     {modelName}
                   </Typography>
                 </Grid>

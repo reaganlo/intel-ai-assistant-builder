@@ -9,7 +9,7 @@
 }
 
 .workflow-text-input {
-    background-color: white;
+    background-color: var(--bg-color);
 }
 
 .workflow-input-container {

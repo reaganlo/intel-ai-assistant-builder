@@ -48,7 +48,7 @@ const WorkflowDocScoring = ({loading, invoke}) => {
                                 <HighLowTooltipDescription
                                     overall_description={"When enabled, includes the reason for the scores. This will increase processing time."}
                                 />
-                                <span style={{fontSize:"small", marginLeft: 3}}>Include Reasoning</span>
+                                <span style={{fontSize:"small", marginLeft: 3, color: "var(--text-secondary-color)"}}>Include Reasoning</span>
                             </div> 
                             <div className="workflow-horizontal-input">
                                 <WorkflowInput

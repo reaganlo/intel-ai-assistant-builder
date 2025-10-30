@@ -1,4 +1,4 @@
-﻿{
+{
   "minimum_hardware": {
     "title": "Minimum Hardware Specifications Not Met",
     "part_1": "Your hardware is not compatible with this software.",
@@ -53,7 +53,9 @@
       "mcp_server": "MCP Server",
       "mcp_server_name": "MCP Server Name",
       "mcp_server_url": "MCP Server URL",
-      "mcp_server_env": "MCP Server Env (Optional)",
+      "mcp_server_env": "Environment Variables (Optional)",
+      "mcp_server_env_placeholder": "e.g. MY_ENV_1=My_ENV_VALUE_1 MY_ENV_2=My_ENV_VALUE_2",
+      "mcp_server_env_error": "Environment variable format should be KEY=VALUE",
       "mcp_server_command": "MCP Server Command",
       "mcp_server_command_args": "MCP Server Command Args (Optional)",
       "mcp_server_info": "Info from MCP Server",
@@ -210,7 +212,10 @@
       "logo_update": "Upload New Logo",
       "color": {
         "title": "Color",
-        "pick": "Pick a color"
+        "pick": "Pick a color",
+        "primary": "Primary Color",
+        "primary_text": "Primary Text & Icons Color",
+        "secondary": "Secondary Color"
       },
       "language": {
         "title": "Language",
