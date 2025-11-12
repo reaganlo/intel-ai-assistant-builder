@@ -181,7 +181,7 @@ For comprehensive troubleshooting guidance, installation tips, and a complete li
 
 ##### Version 2.0.0
 
-- Introducing MCP Support
+- Introducing MCP Support:
 We've added Model Control Protocol (MCP) support, enabling seamless import/export of MCP servers and agents, improved error handling, and enhanced UI/UX for managing workflows. This lays the foundation for more flexible agent-based orchestration and integration with external systems.
 
 - Introducing New OVMS Backend
