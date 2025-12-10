@@ -55,7 +55,7 @@ See the example configuration below for reference:
    ```
 
 2. **Important Setup:**
-   - The installation will show the uvx.exe download path, like C:\Users\your_user_name\.local\bin
+   - The installation will show the uvx.exe download path, for example, C:\Users\your_user_name\.local\bin
    - Add the above path to **System Environment Variables** (not User Environment Variables)
    - **Restart your computer** for the system environment change to take effect
    - **Corporate Network Users:** Configure proxy settings (`HTTP_PROXY`, `HTTPS_PROXY`) in System Environment Variables if your network requires proxy authentication for downloading libraries

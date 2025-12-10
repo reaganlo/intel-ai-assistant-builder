@@ -4,7 +4,7 @@ Custom MCP servers that can be automatically generated using Intel AI Assistant 
 
 ## Examples
 
-Checkout our MCP executible examples in [mcp/mcp_servers](https://github.com/intel/intel-ai-assistant-builder/tree/main/mcp/mcp_servers)
+Checkout our MCP executable examples in [mcp/mcp_servers](https://github.com/intel/intel-ai-assistant-builder/tree/main/mcp/mcp_servers)
 - Mindmap generation server (uses stdio protocol)
 - Flight search server (uses HTTP streamable protocol)
 - Hotel search server (uses HTTP streamable protocol)
