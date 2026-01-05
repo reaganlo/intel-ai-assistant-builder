@@ -7,7 +7,7 @@ These assistants streamline everyday tasks and deliver intelligent solutions by 
 
 <a name="toc"></a>
 
-- [Why Choose Intel® AI Super Builder?](#why-choose-intel-ai-assistant-builder)
+- [Why Choose Intel® AI Super Builder?](#why-choose-intel-ai-super-builder)
 - [System Requirements](#system-requirements)
   - [Hardware Requirements](#hardware-requirements)
   - [Software Requirements](#software-requirements)
@@ -16,17 +16,16 @@ These assistants streamline everyday tasks and deliver intelligent solutions by 
   - [User Interface Source Code](#user-interface-source-code)
   - [Code Examples and Tutorials](#code-examples-and-tutorials)
   - [API Documentation](#api-documentation)
-- [LLM Models and Recommendations](#llm-models-and-recommendations)
+- [Models and Recommendations](#models-and-recommendations)
 - [Platform Capabilities](#platform-capabilities)
-- [:bulb: **Coming Soon** :sparkles:](#bulb-coming-soon-sparkles)
+- [Coming Soon](#coming-soon)
 - [Help and Troubleshooting](#help-and-troubleshooting)
 - [What's New](#whats-new)
-  - [Latest Release (Version 2.2.0)](#latest-release-version-220)
+  - [Latest Release (Version 2.7.0)](#latest-release-version-270)
   - [Earlier Versions](#earlier-versions)
-      - [Version 2.2.0](#version-220)
-      - [Version 2.1.0](#version-210)
-      - [Version 2.0.0](#version-200)
-
+      - [Version 2.2.0 ⬇️ Download](#version-220-️-download)
+      - [Version 2.1.0 ⬇️ Download](#version-210-️-download)
+      - [Version 2.0.0 ⬇️ Download](#version-200-️-download)
 - [Get Support](#get-support)
 
 
@@ -168,17 +167,17 @@ For comprehensive troubleshooting guidance, installation tips, and a complete li
 - Introducing MCP Safety through enhanced transparency of MCP Tools
 
 ### Earlier Versions
-##### Version 2.2.0
+##### Version 2.2.0 [⬇️ Download](https://aibuilder.intel.com/installers/Intel(R)%20AI%20Assistant%20Builder_Installer_SA_2.2.0.1028.exe)
 - MCP marketplace integration with Modelscope
 - Japanese language support
 - Wider support for MCP executables
 
-##### Version 2.1.0
+##### Version 2.1.0 [⬇️ Download](https://aibuilder.intel.com/installers/Intel(R)%20AI%20Assistant%20Builder_Installer_SA_2.1.0.925.exe)
 - Dark/Light mode sync with Windows Settings
 - Enhanced GPU device support
 - Knowledge Base compatibility fixes
 
-##### Version 2.0.0
+##### Version 2.0.0 [⬇️ Download](https://aibuilder.intel.com/installers/Intel(R)%20AI%20Assistant%20Builder_Installer_SA_2.0.0.902.exe)
 
 - Introducing MCP Support:
 We've added Model Control Protocol (MCP) support, enabling seamless import/export of MCP servers and agents, improved error handling, and enhanced UI/UX for managing workflows. This lays the foundation for more flexible agent-based orchestration and integration with external systems.
