@@ -1,8 +1,10 @@
 # Open Source MCP Servers
 
-Intel AI Assistant Builder supports community-maintained MCP servers from the official Model Context Protocol repository at [github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers), as well as various MCP marketplaces. These servers provide access to popular tools and services.
+Intel AI Super Builder supports community-maintained MCP servers from the official Model Context Protocol repository at [github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers), as well as various MCP marketplaces. These servers provide access to popular tools and services.
 
-We recommend using Docker command line when the open source MCP server supports it, for better security and isolation. Starting from Intel AI Assistant Builder v2.2.0, we have integrated the Modelscope MCP marketplace, allowing users to easily explore and try different MCP servers.
+For better security and isolation, we recommend using Docker command line when the open source MCP server supports it.
+
+Starting from Intel AI Super Builder v2.2.0, we have integrated the Modelscope MCP marketplace, allowing users to easily explore and try different MCP servers.
 
 Below are four different methods to install and set up open source MCP servers:
 
@@ -19,7 +21,7 @@ Below are four different methods to install and set up open source MCP servers:
   If this command succeeds, your Docker installation is configured correctly.
 
 **Steps:**
-1. In the Intel AI Assistant Builder UI, select **Command** as the connection type
+1. In the Intel AI Super Builder UI, select **Command** as the connection type
 2. Enter the Docker command line in the **MCP Server Command** field (see example below)
 3. Configure any required environment variables
 
@@ -55,7 +57,7 @@ See the example configuration below for reference:
    ```
 
 2. **Important Setup:**
-   - The installation will show the uvx.exe download path, for example, C:\Users\your_user_name\.local\bin
+   - The installation will show the uvx.exe download path, for example, `C:\Users\your_user_name\.local\bin`
    - Add the above path to **System Environment Variables** (not User Environment Variables)
    - **Restart your computer** for the system environment change to take effect
    - **Corporate Network Users:** Configure proxy settings (`HTTP_PROXY`, `HTTPS_PROXY`) in System Environment Variables if your network requires proxy authentication for downloading libraries
@@ -78,9 +80,9 @@ See the example configuration below for reference:
 
 ## Troubleshooting Dependencies
 
-Intel AI Assistant Builder runs as a Windows Service, which means it uses **System Environment Variables** instead of **User Environment Variables**. If your system is behind a corporate firewall, also add `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` to the System Environment.
+Intel AI Super Builder runs as a Windows Service, which means it uses **System Environment Variables** instead of **User Environment Variables**. If your system is behind a corporate firewall, also add `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` to the System Environment.
 
-**To test if Intel AI Assistant Builder can find your tools:**
+**To test if Intel AI Super Builder can find your tools:**
 
 1. Open PowerShell and simulate the service environment:
 ``` Powershell
@@ -95,7 +97,7 @@ Get-Command python
 Get-Command node
 ```
 
-3. If any commands fail (even though you have Node.js/Python installed), Intel AI Assistant Builder won't be able to find them either.
+3. If any commands fail (even though you have Node.js/Python installed), Intel AI Super Builder won't be able to find them either.
 
 4. **Solution:** Add the installation folders for `npx`, `uvx`, `python`, and `node` to your **System Environment PATH** (not User PATH).
 
