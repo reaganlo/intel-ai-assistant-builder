@@ -59,7 +59,7 @@ var updateResponse = await client.GetSoftwareUpdateAsync(new SayHelloRequest { N
 Console.WriteLine("Server Reply: " + updateResponse.Message);
 
 Console.WriteLine("\n\n-------- Health Check -------");
-var checkHealthResponse = await client.CheckHealthAsync(new CheckHealthRequest { TypeOfCheck = "RAG" });
+var checkHealthResponse = await client.CheckHealthAsync(new CheckHealthRequest { TypeOfCheck = "version" });
 Console.WriteLine("\nServer Reply: " + checkHealthResponse.Status);
 
 
