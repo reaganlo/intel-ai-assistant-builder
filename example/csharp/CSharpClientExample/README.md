@@ -1,5 +1,5 @@
-# C# Client for Intel® AI Assistant Builder Service
-This folder contains a simple C# Client designed to communicate with Intel® AI Assistant Builder Service.
+# C# Client for Intel® AI Super Builder Service
+This folder contains a simple C# Client designed to communicate with Intel® AI Super Builder Service.
 
 ## Install Dependencies
 - Please ensure that `Desktop Development with C++` and `.NET Desktop Development` are installed on your system.

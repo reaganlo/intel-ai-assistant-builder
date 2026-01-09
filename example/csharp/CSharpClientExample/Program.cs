@@ -103,9 +103,8 @@ finally
 //Chat with RAG
 Console.WriteLine("\n\n-------- Chat with RAG (Attached Files) -------");
 
-// Step 1: Upload file to knowledge base first, you can also add files by our APP UI.
-// Skip this step if the file has already been added to knowledge base!
-var readmePath = @"C:\Users\labuser\Desktop\intel_aia\README.md"; //update this path with the file you want to upload
+// Step 1: Upload file to knowledge base first.
+var readmePath = Path.Combine(Directory.GetCurrentDirectory(), "README.md");
 Console.WriteLine($"Uploading README file: {readmePath}");
 
 // Verify file exists before uploading
@@ -150,7 +149,7 @@ else
     var ragChatRequest = new ChatRequest
     {
         Name = "SuperBuilder C# Client!",
-        Prompt = "What is superbuilder?",
+        Prompt = "What are the install dependencies?",
         AttachedFiles = $"[\"{readmePath.Replace("\\", "\\\\")}\"]" // Query the uploaded file
     };
 
@@ -162,7 +161,7 @@ else
         {
             Console.WriteLine("Response chunk: " + response.Message);
             ragFullResponse += response.Message;
-        
+
             // Print references if available
             if (response.References.Count > 0)
             {
