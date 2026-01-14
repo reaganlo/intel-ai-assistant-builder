@@ -1,346 +1,446 @@
-﻿using CSharpClientExample;
-using Google.Protobuf.Collections;
-using Grpc.Core;
+﻿using Grpc.Core;
 using Grpc.Net.Client;
 using SuperBuilderWinService;
 using Newtonsoft.Json;
 
-var grpcServerAddress = "http://localhost:5006";
-
-Console.WriteLine("Creating connection to SuperBuilder middleware (AssistantService)...");
-
-
-var httpClientHandler = new HttpClientHandler
+internal class Program
 {
-    UseProxy = false, // Disable the proxy
-    SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13,
-    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator // For development only
-};
+    private const string GrpcServerAddress = "http://localhost:5006";
+    private const string ClientName = "SuperBuilder - CSharp Example";
 
-// Create the HttpClient with the handler
-var httpClient = new HttpClient(httpClientHandler)
-{
-    DefaultRequestVersion = new Version(2, 0),
-    DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
-};
-
-// Create the GrpcChannel with the HttpClient
-var channel = GrpcChannel.ForAddress(grpcServerAddress, new GrpcChannelOptions
-{
-    HttpClient = httpClient,
-    Credentials = ChannelCredentials.Insecure // Use Insecure for local development
-});
-
-
-
-//using var channel = GrpcChannel.ForAddress("http://localhost:5006");
-var client = new SuperBuilder.SuperBuilderClient(channel);
-
-Console.WriteLine("\n\n-------- Say Hello -------");
-
-// Make a gRPC call
-try
-{
-    var sayHelloResponse = await client.SayHelloAsync(new SayHelloRequest { Name = "SuperBuilder C# Client!" });
-    Console.WriteLine("Server Reply: " + sayHelloResponse.Message);
-}
-catch (RpcException e)
-{
-    Console.WriteLine($"gRPC error: {e.Status.Detail}");
-}
-catch (HttpRequestException e)
-{
-    Console.WriteLine($"HTTP request error: {e.Message}");
-}
-
-
-Console.WriteLine("\n\n-------- Get Software Update ------- ");
-var updateResponse = await client.GetSoftwareUpdateAsync(new SayHelloRequest { Name = "SuperBuilder C# Client!" });
-Console.WriteLine("Server Reply: " + updateResponse.Message);
-
-Console.WriteLine("\n\n-------- Health Check -------");
-var checkHealthResponse = await client.CheckHealthAsync(new CheckHealthRequest { TypeOfCheck = "version" });
-Console.WriteLine("\nServer Reply: " + checkHealthResponse.Status);
-
-
-
-// CHAT TEST
-Console.WriteLine("\n\n-------- Chat -------");
-var chatRequest = new ChatRequest
-{
-    Name = "SuperBuilder C# Client!",
-    Prompt = "What were we just talking about?",
-};
-// add in some chat history
-chatRequest.History.Add(new ConversationHistory { Role = "user", Content = "Tell me a bit about yourself" });
-chatRequest.History.Add(new ConversationHistory { Role = "assistant", Content = "I am an Intel AI Assistant, a chatbot developed by Intel. I can help you with various tasks provided context." });
-var fullResponse = "";
-try
-{
-    // // Set a timeout of 10 seconds (For testing)
-    // var callOptions = new CallOptions(deadline: DateTime.UtcNow.AddSeconds(5));
-    var r = client.Chat(chatRequest);
-    await foreach (var response in r.ResponseStream.ReadAllAsync())
+    private static async Task Main()
     {
-        Console.WriteLine("Response chunk: " + response.Message);
-        fullResponse += response.Message;
+        Console.WriteLine("Connecting to SuperBuilder Middleware...");
+
+        using var channel = CreateGrpcChannel();
+        var client = new SuperBuilder.SuperBuilderClient(channel);
+
+        await SayHelloAsync(client);
+        //await SetParametersAsync(client);
+        //await RunBasicChatAsync(client);
+        //await RunRAGChatAsync(client);
+        //await ManageMCPServersAsync(client);
+        //await RunSuperAgentChatAsync(client);
+        await RunSuperAgentRAGChatAsync(client);
+
+        Console.WriteLine("\n=== Done ===");
     }
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Unexpected error: {ex.Message}");
-    Console.WriteLine($"Sending stop generation now...");
-    var stopRequest = new StopChatRequest { };
-    var stopResponse = client.StopChat(stopRequest);
-    Console.WriteLine($"Generation stopped");
-}
-finally
-{
-    Console.WriteLine($"Full response: {fullResponse}");
-}
 
-
-//Chat with RAG
-Console.WriteLine("\n\n-------- Chat with RAG (Attached Files) -------");
-
-// Step 1: Upload file to knowledge base first.
-var readmePath = Path.Combine(Directory.GetCurrentDirectory(), "README.md");
-Console.WriteLine($"Uploading README file: {readmePath}");
-
-// Verify file exists before uploading
-if (!File.Exists(readmePath))
-{
-    Console.WriteLine($"ERROR: File does not exist at: {readmePath}");
-    Console.WriteLine($"Current directory: {Directory.GetCurrentDirectory()}");
-    Console.WriteLine($"Base directory: {AppContext.BaseDirectory}");
-}
-else
-{
-    Console.WriteLine($"File verified: {readmePath}");
-
-    var addFilesRequest = new AddFilesRequest
+    #region Channel Setup
+    private static GrpcChannel CreateGrpcChannel()
     {
-        FilesToUpload = $"[\"{readmePath.Replace("\\", "\\\\")}\"]"
-    };
-
-    try
-    {
-        Console.WriteLine("Starting file upload...");
-        var uploadStream = client.AddFiles(addFilesRequest);
-        await foreach (var uploadResponse in uploadStream.ResponseStream.ReadAllAsync())
+        var httpHandler = new HttpClientHandler
         {
-            if (!string.IsNullOrEmpty(uploadResponse.CurrentFileUploading))
+            UseProxy = false,
+            ServerCertificateCustomValidationCallback =
+                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator // Dev only
+        };
+
+        var httpClient = new HttpClient(httpHandler)
+        {
+            DefaultRequestVersion = new Version(2, 0),
+            DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
+        };
+
+        return GrpcChannel.ForAddress(GrpcServerAddress, new GrpcChannelOptions
+        {
+            HttpClient = httpClient,
+            Credentials = ChannelCredentials.Insecure // Local dev
+        });
+    }
+    #endregion
+
+    #region Hello
+    private static async Task SayHelloAsync(SuperBuilder.SuperBuilderClient client)
+    {
+        Console.WriteLine("\n-------- Say Hello --------");
+
+        try
+        {
+            var response = await client.SayHelloAsync(new SayHelloRequest
             {
-                Console.WriteLine($"Uploading: {uploadResponse.CurrentFileUploading} - {uploadResponse.CurrentFileProgress}%");
-            }
-            if (!string.IsNullOrEmpty(uploadResponse.FilesUploaded))
+                Name = ClientName
+            });
+
+            Console.WriteLine($"Server Reply: {response.Message}");
+        }
+        catch (RpcException ex)
+        {
+            Console.WriteLine($"gRPC error: {ex.Status.Detail}");
+        }
+    }
+    #endregion
+
+    #region Upload File
+    private static async Task UploadFileAsync(
+        SuperBuilder.SuperBuilderClient client,
+        string filePath)
+    {
+        Console.WriteLine($"Uploading file: {filePath}");
+
+        var request = new AddFilesRequest
+        {
+            FilesToUpload = ToJsonArray(filePath)
+        };
+
+        try
+        {
+            var stream = client.AddFiles(request);
+
+            await foreach (var response in stream.ResponseStream.ReadAllAsync())
             {
-                Console.WriteLine($"Files uploaded: {uploadResponse.FilesUploaded}");
+                if (!string.IsNullOrEmpty(response.CurrentFileUploading))
+                {
+                    Console.WriteLine(
+                        $"Uploading {response.CurrentFileUploading}: {response.CurrentFileProgress}%");
+                }
+
+                if (!string.IsNullOrEmpty(response.FilesUploaded))
+                {
+                    Console.WriteLine($"Uploaded: {response.FilesUploaded}");
+                }
             }
         }
-        Console.WriteLine("File upload complete!");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Upload error: {ex.Message}");
-    }
-
-    // Step 2: Chat with the uploaded file
-    var ragChatRequest = new ChatRequest
-    {
-        Name = "SuperBuilder C# Client!",
-        Prompt = "What are the install dependencies?",
-        AttachedFiles = $"[\"{readmePath.Replace("\\", "\\\\")}\"]" // Query the uploaded file
-    };
-
-    var ragFullResponse = "";
-    try
-    {
-        var r = client.Chat(ragChatRequest);
-        await foreach (var response in r.ResponseStream.ReadAllAsync())
+        catch (Exception ex)
         {
-            Console.WriteLine("Response chunk: " + response.Message);
-            ragFullResponse += response.Message;
+            Console.WriteLine($"File upload failed: {ex.Message}");
+        }
+    }
+    #endregion
 
-            // Print references if available
-            if (response.References.Count > 0)
-            {
-                Console.WriteLine("\nReferences:");
-                foreach (var reference in response.References)
+    #region MCP Management
+    private static async Task RemoveMcpServersByNameAsync(
+        SuperBuilder.SuperBuilderClient client,
+        string mcpServerName)
+    {
+        var response = await client.GetMCPServersAsync(new GetMCPServersRequest());
+
+        // Case-sensitive, exact match
+        var matchingServers = response.Servers
+            .Where(s => string.Equals(s.ServerName, mcpServerName, StringComparison.Ordinal))
+            .ToList();
+
+        if (!matchingServers.Any())
+        {
+            Console.WriteLine($"No MCP servers found with name '{mcpServerName}'.");
+            return;
+        }
+
+        foreach (var server in matchingServers)
+        {
+            Console.WriteLine($"Removing MCP Server: ID={server.Id}, Name={server.ServerName}");
+
+            await client.RemoveMCPServerAsync(
+                new RemoveMCPServerRequest
                 {
-                    Console.WriteLine($"  - File: {reference.File}");
-                    if (reference.HasPage)
+                    ServerName = server.ServerName
+                });
+        }
+
+        Console.WriteLine($"Removed {matchingServers.Count} MCP server(s) with name '{mcpServerName}'.");
+    }
+
+    private static async Task<int?> AddMcpServerAndGetIdAsync(
+        SuperBuilder.SuperBuilderClient client, string mcpServerName, string command, string args)
+    {
+        var addResponse = await client.AddMCPServerAsync(new AddMCPServerRequest
+        {
+            Server = new MCPServer
+            {
+                ServerName = mcpServerName,
+                Command = command,
+                Args = args
+            }
+        });
+
+        Console.WriteLine($"Add Server: {addResponse.Message}");
+
+        return await GetLatestMcpServerIdAsync(client, mcpServerName);
+    }
+
+    private static async Task<int?> GetLatestMcpServerIdAsync(
+        SuperBuilder.SuperBuilderClient client,
+        string mcpServerName)
+    {
+        var response = await client.GetMCPServersAsync(new GetMCPServersRequest());
+
+        var latestServer = response.Servers
+            .Where(s => s.ServerName == mcpServerName)   // case-sensitive match
+            .OrderByDescending(s => s.Id)
+            .FirstOrDefault();
+
+        if (latestServer == null)
+        {
+            Console.WriteLine($"No MCP servers found with name '{mcpServerName}'.");
+            return null;
+        }
+
+        Console.WriteLine(
+            $"Latest Server: ID={latestServer.Id}, Name={latestServer.ServerName}");
+
+        return latestServer.Id;
+    }
+
+    private static async Task StopAndRemoveMcpAgentAsync(
+        SuperBuilder.SuperBuilderClient client,
+        string agentName)
+    {
+        if (string.IsNullOrWhiteSpace(agentName))
+        {
+            throw new ArgumentException("Agent name must be provided.", nameof(agentName));
+        }
+
+        // 1. Stop the agent
+        var stopResponse = await client.StopMCPAgentAsync(
+            new StopMCPAgentRequest
+            {
+                AgentName = agentName
+            });
+
+        if (!stopResponse.Success)
+        {
+            Console.WriteLine(
+                $"Failed to stop agent '{agentName}': {stopResponse.Message}");
+            return;
+        }
+
+        Console.WriteLine(
+            $"Agent '{agentName}' stopped successfully.");
+
+        // 2. Remove the agent
+        var removeResponse = await client.RemoveMCPAgentAsync(
+            new RemoveMCPAgentRequest
+            {
+                AgentName = agentName
+            });
+
+        if (!removeResponse.Success)
+        {
+            Console.WriteLine(
+                $"Failed to remove agent '{agentName}': {removeResponse.Message}");
+            return;
+        }
+
+        Console.WriteLine(
+            $"Agent '{agentName}' removed successfully.");
+    }
+
+    private static async Task<int?> AddMcpAgentAndGetIdAsync(
+        SuperBuilder.SuperBuilderClient client,
+        string mcpAgentName,
+        string desc,
+        string message,
+        int mcpServerId)
+    {
+        var addResponse = await client.AddMCPAgentAsync(
+            new AddMCPAgentRequest
+            {
+                Agent = new MCPAgent
+                {
+                    Name = mcpAgentName,
+                    Desc = desc,
+                    Message = message,
+                    ServerIds = { mcpServerId } // repeated field
+                }
+            });
+
+        Console.WriteLine($"Add Agent: {addResponse.Message}");
+
+        return await GetLatestMcpAgentIdAsync(client, mcpAgentName);
+    }
+
+    private static async Task<int?> GetLatestMcpAgentIdAsync(
+        SuperBuilder.SuperBuilderClient client,
+        string mcpAgentName)
+    {
+        var response = await client.GetMCPAgentsAsync(
+            new GetMCPAgentsRequest());
+
+        var latestAgent = response.Agents
+            .Where(a => a.Name == mcpAgentName) // Using Name property per proto
+            .OrderByDescending(a => a.Id)
+            .FirstOrDefault();
+
+        if (latestAgent == null)
+        {
+            Console.WriteLine(
+                $"No MCP Agents found with name '{mcpAgentName}'.");
+            return null;
+        }
+
+        Console.WriteLine(
+            $"Latest Agent: ID={latestAgent.Id}, Name={latestAgent.Name}");
+
+        return latestAgent.Id;
+    }
+
+
+    private static async Task StartMcpAgentAsync(
+        SuperBuilder.SuperBuilderClient client,
+        string agentName)
+    {
+        var response = await client.StartMCPAgentAsync(new StartMCPAgentRequest
+        {
+            AgentName = agentName
+        });
+
+        Console.WriteLine($"Start Agent: {response.Message}");
+    }
+    #endregion
+
+    #region SuperAgent RAG Chat
+    private static async Task RunSuperAgentRAGChatAsync(
+        SuperBuilder.SuperBuilderClient client)
+    {
+        Console.WriteLine("\n-------- Remove Existing Agent --------");
+
+        const string agentName = "PDFAgent";
+        await StopAndRemoveMcpAgentAsync(client, agentName);
+
+        Console.WriteLine("\n-------- Add MCP Server --------");
+
+        var mcpServerName = "mcp-server-pdf";
+        var mcpServerExePath = Path.Combine(
+            Directory.GetCurrentDirectory(), "mcp_server_pdf-mcp-server.exe");
+
+        if (!File.Exists(mcpServerExePath))
+        {
+            Console.WriteLine($"ERROR: MCP Server exe not found at {mcpServerExePath}");
+            return;
+        }
+
+        var mcpArgs = "start";
+
+        // Remove MCP servers by name
+        var response = await client.RemoveMCPServerAsync(
+            new RemoveMCPServerRequest
+            {
+                ServerName = mcpServerName
+            });
+
+        if (!response.Success)
+        {
+            Console.WriteLine(
+                $"Failed to remove MCP server '{mcpServerName}': {response.Message}");
+        }
+        else
+        {
+            Console.WriteLine(
+                $"Successfully removed MCP server(s) named '{mcpServerName}'");
+        }
+
+        // Add the MCP Server
+        var latestServerId = await AddMcpServerAndGetIdAsync(
+            client, mcpServerName, mcpServerExePath, mcpArgs);
+
+        if (!latestServerId.HasValue)
+        {
+            Console.WriteLine("Failed to determine latest MCP server ID.");
+            return;
+        }
+
+        Console.WriteLine($"Latest MCP Server ID: {latestServerId.Value}");
+
+        Console.WriteLine("\n-------- Add MCP Agent --------");
+
+        // Add MCP Agent
+        var addAgentResponse = await client.AddMCPAgentAsync(
+            new AddMCPAgentRequest
+            {
+                Agent = new MCPAgent
+                {
+                    Name = agentName,
+                    Desc = "Generate PDF file",
+                    Message = "You execute ONE assigned task in a workflow. INPUTS: - ORIGINAL QUESTION: Full user request (if provided - gives context) - DEPENDENCY OUTPUTS: Results from prerequisite tasks (if provided - your input data) - YOUR TASK: What you must do (ONLY this) INPUT PATTERNS: Pattern 1 (First step - no dependencies): - You receive: ORIGINAL QUESTION + YOUR TASK - Use ORIGINAL QUESTION to understand what data/action YOUR TASK needs Pattern 2 (Later step - has dependencies): - You receive: DEPENDENCY OUTPUTS + YOUR TASK - Use DEPENDENCY OUTPUTS as your input data - ORIGINAL QUESTION may not be provided (you don't need it) RULES: - Use tools as needed to complete YOUR TASK - If you have ORIGINAL QUESTION: understand context, but execute only YOUR TASK - If you have DEPENDENCY OUTPUTS: use them as input for YOUR TASK - Do not solve beyond YOUR TASK scope - Stop when YOUR TASK is done OUTPUT: When complete, simply report your results and say nothing else.",
+                    ServerIds = { latestServerId.Value }
+                }
+            });
+
+        Console.WriteLine($"Add Agent: {addAgentResponse.Message}");
+
+        // Start agent
+        await StartMcpAgentAsync(client, agentName);
+
+        // List servers
+        Console.WriteLine("\n-------- List MCP Servers --------");
+        var listResponse = await client.GetMCPServersAsync(
+            new GetMCPServersRequest());
+
+        foreach (var server in listResponse.Servers)
+        {
+            Console.WriteLine(
+                $"ID={server.Id}, Name={server.ServerName}, Cmd={server.Command}");
+        }
+
+        Console.WriteLine("\n-------- SuperAgent RAG Chat --------");
+
+        var ragFilePath = Path.Combine(
+            Directory.GetCurrentDirectory(), "RajeshKrishnan-Resume.docx");
+
+        if (!File.Exists(ragFilePath))
+        {
+            Console.WriteLine($"ERROR: RAG file not found at {ragFilePath}");
+            return;
+        }
+
+        await UploadFileAsync(client, ragFilePath);
+
+        var request = new ChatRequest
+        {
+            Name = ClientName,
+            Prompt =
+                "What is the work experience? Generate a pdf C:\\temp\\IntelAia\\output.pdf",
+            AttachedFiles = ToJsonArray(ragFilePath),
+            PromptOptions = new PromptOptions
+            {
+                SuperAgentPrompt =
+                    new PromptOptions.Types.SuperAgentPrompt()
+            }
+        };
+
+        await StreamChatAsync(client, request);
+    }
+    #endregion
+
+    #region Helper Functions
+    private static async Task StreamChatAsync(
+        SuperBuilder.SuperBuilderClient client,
+        ChatRequest request,
+        bool showReferences = false)
+    {
+        var fullResponse = string.Empty;
+
+        try
+        {
+            var stream = client.Chat(request);
+
+            await foreach (var response in stream.ResponseStream.ReadAllAsync())
+            {
+                Console.Write(response.Message);
+                fullResponse += response.Message;
+
+                if (showReferences && response.References.Count > 0)
+                {
+                    Console.WriteLine("\nReferences:");
+                    foreach (var r in response.References)
                     {
-                        Console.WriteLine($"    Page: {reference.Page}");
-                    }
-                    if (!string.IsNullOrEmpty(reference.Sheet))
-                    {
-                        Console.WriteLine($"    Sheet: {reference.Sheet}");
+                        Console.WriteLine($"- {r.File}");
                     }
                 }
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Chat error: {ex.Message}");
+            client.StopChat(new StopChatRequest());
+        }
+        finally
+        {
+            Console.WriteLine($"\n\nFull response:\n{fullResponse}");
+        }
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Unexpected error: {ex.Message}");
-        Console.WriteLine($"Sending stop generation now...");
-        var stopRequest = new StopChatRequest { };
-        var stopResponse = client.StopChat(stopRequest);
-        Console.WriteLine($"Generation stopped");
-    }
-    finally
-    {
-        Console.WriteLine($"\nFull RAG response: {ragFullResponse}");
-    }
+
+    private static string ToJsonArray(string value) =>
+        $"[\"{value.Replace("\\", "\\\\")}\"]";
+    #endregion
 }
-
-
-
-Console.WriteLine("\n\n-------- Get All MCP Servers -------");
-var getRequest = new GetMCPServersRequest();
-
-try
-{
-    var getResponse = await client.GetMCPServersAsync(getRequest);
-
-    Console.WriteLine("\n=== GetMCPServers Response ===");
-    foreach (var srv in getResponse.Servers)
-    {
-        Console.WriteLine($"ID: {srv.Id}");
-        Console.WriteLine($"Name: {srv.ServerName}");
-        Console.WriteLine($"Command: {srv.Command}");
-        Console.WriteLine($"Args: {srv.Args}");
-        Console.WriteLine($"Url: {srv.Url}");
-        Console.WriteLine($"Env: {srv.Env}");
-        Console.WriteLine("-----------------------------");
-    }
-}
-catch (Exception ex)
-{
-    Console.WriteLine("GetMCPServers failed:");
-    Console.WriteLine(ex);
-}
-
-Console.WriteLine("\n\n-------- Add an MCP Server -------");
-var addRequest = new AddMCPServerRequest
-{
-    Server = new MCPServer
-    {
-        Id = 1,  // Server will assign its own ID if needed
-        ServerName = "mcp-server-fetch",
-        Command = "cmd",
-        Args = "/c uvx mcp-server-fetch",
-        Env = "" // NOTE: Add proxy if required
-    }
-};
-
-try
-{
-    var addResponse = await client.AddMCPServerAsync(addRequest);
-
-    Console.WriteLine("=== AddMCPServer Response ===");
-    Console.WriteLine($"Success: {addResponse.Success}");
-    Console.WriteLine($"Message: {addResponse.Message}");
-}
-catch (Exception ex)
-{
-    Console.WriteLine("AddMCPServer failed:");
-    Console.WriteLine(ex);
-}
-
-
-
-Console.WriteLine("\n\n-------- Add an MCP Agent -------");
-var addAgentRequest = new AddMCPAgentRequest
-{
-    Agent = new MCPAgent
-    {
-        Id = 1,                     // Server can assign if needed
-        Name = "FetchAgent",
-        Desc = "Fetch details of a webpage",
-        Message = "Follow the users instructions",
-        // Link the agent to the server(s) by ID
-        ServerIds = { 1 }
-    }
-};
-
-try
-{
-    var addAgentResponse = await client.AddMCPAgentAsync(addAgentRequest);
-
-    Console.WriteLine("\n=== AddMCPAgent Response ===");
-    Console.WriteLine($"Success: {addAgentResponse.Success}");
-    Console.WriteLine($"Message: {addAgentResponse.Message}");
-}
-catch (Exception ex)
-{
-    Console.WriteLine("AddMCPAgent failed:");
-    Console.WriteLine(ex);
-}
-
-Console.WriteLine("\n\n-------- Start an MCP Agent -------");
-var startAgentRequest = new StartMCPAgentRequest
-{
-    AgentName = "FetchAgent"
-};
-
-try
-{
-    var startAgentResponse = await client.StartMCPAgentAsync(startAgentRequest);
-
-    Console.WriteLine("\n=== StartMCPAgent Response ===");
-    Console.WriteLine($"Success: {startAgentResponse.Success}");
-    Console.WriteLine($"Message: {startAgentResponse.Message}");
-}
-catch (Exception ex)
-{
-    Console.WriteLine("StartMCPAgent failed:");
-    Console.WriteLine(ex);
-}
-
-Console.WriteLine("\n\n-------- Chat with SuperAgent MCP -------");
-var promptOptions = new PromptOptions
-{
-    SuperAgentPrompt = new PromptOptions.Types.SuperAgentPrompt()
-};
-
-// Build ChatRequest
-var request = new ChatRequest
-{
-    Name = "client",
-    Prompt = "What is this website about https://github.com/intel/intel-ai-assistant-builder",
-    SessionId = 1,
-    PromptOptions = promptOptions   // <-- REQUIRED
-};
-
-// Optionally add conversation history
-request.History.Add(new ConversationHistory
-{
-    Role = "user",
-    Content = "Hi there"
-});
-
-var fullChatResponse = "";
-try
-{
-    var r = client.Chat(request);
-    await foreach (var response in r.ResponseStream.ReadAllAsync())
-    {
-        Console.WriteLine("Response chunk: " + response.Message);
-        fullChatResponse += response.Message;
-    }
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Unexpected error: {ex.Message}");
-    Console.WriteLine($"Sending stop generation now...");
-    var stopRequest = new StopChatRequest { };
-    var stopResponse = client.StopChat(stopRequest);
-    Console.WriteLine($"Generation stopped");
-}
-finally
-{
-    Console.WriteLine($"Full response: {fullChatResponse}");
-}
-Console.WriteLine("\n=== Done ===");
