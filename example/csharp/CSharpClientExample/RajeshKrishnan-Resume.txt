@@ -1,0 +1,43 @@
+Rajesh Krishnan
+5678 Oakwood Drive, Austin, TX 78704 | (555) 789-1011 | rajesh.krishnan@example.com
+
+PROFESSIONAL SUMMARY
+IT Professional with 3 years of experience in systems administration, infrastructure management, and cloud technologies. Hands-on experience in basic cloud solutions with AWS and Azure, focusing on small-scale cloud migration projects and hybrid environments. Skilled in automation, virtualization, and security implementation, with a solid understanding of network infrastructure.
+
+SKILLS
+Cloud Platforms: AWS (EC2, S3, RDS), Microsoft Azure (VMs, Storage, App Services)
+Automation & Scripting: Python, Bash, PowerShell
+Networking: VPN, Load Balancers, Firewalls
+Systems Administration: Linux, Windows Server, Active Directory
+Virtualization: VMware, Hyper-V
+Security: IAM, Firewalls, Data Encryption
+Version Control: Git
+
+PROFESSIONAL EXPERIENCE
+Cloud & Systems Administrator
+Tech Solutions, Austin, TX
+January 2021 – Present
+Managed hybrid infrastructure for clients using a combination of on-premise servers and basic AWS cloud services (EC2, S3), ensuring system performance and security.
+Implemented cloud migration projects for small businesses, migrating web applications and databases to AWS, improving uptime by 15%.
+Set up and maintained Azure virtual machines for internal development and testing environments, reducing hardware costs by 25%.
+Automated cloud resource management tasks using PowerShell and Bash scripts, reducing manual workload by 40%.
+Provided cloud security by implementing IAM policies, encryption, and monitoring tools to meet compliance requirements.
+
+EDUCATION
+Bachelor of Science in Information Technology
+University of Texas, Austin, TX
+Graduated: 2013
+
+CERTIFICATIONS
+AWS Certified Cloud Practitioner
+Microsoft Certified: Azure Fundamentals
+VMware Certified Professional (VCP)
+CompTIA Network+
+
+PROJECTS
+Small Business Cloud Migration – Led a project to migrate a small e-commerce company’s infrastructure from on-premise servers to AWS, resulting in a 25% reduction in operational costs.
+Hybrid Cloud Implementation – Implemented a hybrid cloud solution using Azure VMs and on-premise servers for a growing tech startup, improving scalability by 30%.
+
+REFERENCES
+Mark Taylor, IT Manager, Tech Solutions
+Samantha Lee, Director of IT, InfoSys Technologies

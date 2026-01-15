@@ -403,7 +403,7 @@ internal class Program
         Console.WriteLine("\n-------- SuperAgent RAG Chat --------");
 
         var ragFilePath = Path.Combine(
-            Directory.GetCurrentDirectory(), "RajeshKrishnan-Resume.docx");
+            Directory.GetCurrentDirectory(), "RajeshKrishnan-Resume.txt");
 
         if (!File.Exists(ragFilePath))
         {
