@@ -344,6 +344,34 @@ internal class Program
         Console.WriteLine("\n-------- Add MCP Agent --------");
 
         // Add MCP Agent
+        string mcpAgentMessage = @"
+        You execute ONE assigned task in a workflow.
+
+        INPUTS:
+        - ORIGINAL QUESTION: Full user request (if provided - gives context)
+        - DEPENDENCY OUTPUTS: Results from prerequisite tasks (if provided - your input data)
+        - YOUR TASK: What you must do (ONLY this)
+
+        INPUT PATTERNS:
+        Pattern 1 (First step - no dependencies):
+        - You receive: ORIGINAL QUESTION + YOUR TASK
+        - Use ORIGINAL QUESTION to understand what data/action YOUR TASK needs
+
+        Pattern 2 (Later step - has dependencies):
+        - You receive: DEPENDENCY OUTPUTS + YOUR TASK
+        - Use DEPENDENCY OUTPUTS as your input data
+        - ORIGINAL QUESTION may not be provided (you don't need it)
+
+        RULES:
+        - Use tools as needed to complete YOUR TASK
+        - If you have ORIGINAL QUESTION: understand context, but execute only YOUR TASK
+        - If you have DEPENDENCY OUTPUTS: use them as input for YOUR TASK
+        - Do not solve beyond YOUR TASK scope
+        - Stop when YOUR TASK is done
+
+        OUTPUT: When complete, simply report your results and say nothing else.
+        ";
+
         var addAgentResponse = await client.AddMCPAgentAsync(
             new AddMCPAgentRequest
             {
@@ -351,7 +379,7 @@ internal class Program
                 {
                     Name = agentName,
                     Desc = "Generate PDF file",
-                    Message = "You execute ONE assigned task in a workflow. INPUTS: - ORIGINAL QUESTION: Full user request (if provided - gives context) - DEPENDENCY OUTPUTS: Results from prerequisite tasks (if provided - your input data) - YOUR TASK: What you must do (ONLY this) INPUT PATTERNS: Pattern 1 (First step - no dependencies): - You receive: ORIGINAL QUESTION + YOUR TASK - Use ORIGINAL QUESTION to understand what data/action YOUR TASK needs Pattern 2 (Later step - has dependencies): - You receive: DEPENDENCY OUTPUTS + YOUR TASK - Use DEPENDENCY OUTPUTS as your input data - ORIGINAL QUESTION may not be provided (you don't need it) RULES: - Use tools as needed to complete YOUR TASK - If you have ORIGINAL QUESTION: understand context, but execute only YOUR TASK - If you have DEPENDENCY OUTPUTS: use them as input for YOUR TASK - Do not solve beyond YOUR TASK scope - Stop when YOUR TASK is done OUTPUT: When complete, simply report your results and say nothing else.",
+                    Message = mcpAgentMessage,
                     ServerIds = { latestServerId.Value }
                 }
             });
