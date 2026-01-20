@@ -71,16 +71,14 @@ internal class Program
     }
     #endregion
 
-    #region Upload File
-    private static async Task UploadFileAsync(
+    #region Add Files
+    private static async Task AddFilesAsync(
         SuperBuilder.SuperBuilderClient client,
-        string filePath)
+        string[] ragFiles)
     {
-        Console.WriteLine($"Uploading file: {filePath}");
-
         var request = new AddFilesRequest
         {
-            FilesToUpload = ToJsonArray(filePath)
+            FilesToUpload = ToJsonArray(ragFiles)
         };
 
         try
@@ -300,8 +298,7 @@ internal class Program
         Console.WriteLine("\n-------- Add MCP Server --------");
 
         var mcpServerName = "mcp-server-pdf";
-        var mcpServerExePath = Path.Combine(
-            Directory.GetCurrentDirectory(), "mcp_server_pdf-mcp-server.exe");
+        var mcpServerExePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "shared", "mcp-server-pdf.exe"));
 
         if (!File.Exists(mcpServerExePath))
         {
@@ -402,30 +399,28 @@ internal class Program
 
         Console.WriteLine("\n-------- SuperAgent RAG Chat --------");
 
-        var ragFilePath = Path.Combine(
-            Directory.GetCurrentDirectory(), "RajeshKrishnan-Resume.txt");
+        // First add the files to knowledge base
+        Console.WriteLine("\n-------- Add files to Knowledge Base --------");
+        string[] ragFiles = new[] {
+            Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "shared", "file1.txt")),
+            Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "shared", "file2.txt")),
+            Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "shared", "file3.txt"))
+        };
+        await AddFilesAsync(client, ragFiles);
 
-        if (!File.Exists(ragFilePath))
-        {
-            Console.WriteLine($"ERROR: RAG file not found at {ragFilePath}");
-            return;
-        }
-
-        await UploadFileAsync(client, ragFilePath);
-
+        // Then call chat in SuperAgent mode with added files
         var request = new ChatRequest
         {
             Name = ClientName,
             Prompt =
-                "What is the work experience? Generate a pdf C:\\temp\\IntelAia\\output.pdf",
-            AttachedFiles = ToJsonArray(ragFilePath),
+                "what is the email of Celine Peter? Generate a pdf C:\\temp\\IntelAia\\output.pdf",
+            AttachedFiles = ToJsonArray(ragFiles),
             PromptOptions = new PromptOptions
             {
                 SuperAgentPrompt =
                     new PromptOptions.Types.SuperAgentPrompt()
             }
         };
-
         await StreamChatAsync(client, request);
     }
     #endregion
@@ -468,7 +463,13 @@ internal class Program
         }
     }
 
-    private static string ToJsonArray(string value) =>
-        $"[\"{value.Replace("\\", "\\\\")}\"]";
+    private static string ToJsonArray(IEnumerable<string> values)
+    {
+        var escaped = values
+            .Select(v => v.Replace("\\", "\\\\"))
+            .Select(v => $"\"{v}\"");
+
+        return $"[{string.Join(",", escaped)}]";
+    }
     #endregion
 }

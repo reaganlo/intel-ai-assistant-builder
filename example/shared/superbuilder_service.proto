@@ -1,0 +1,551 @@
+syntax = "proto3";
+
+option csharp_namespace = "SuperBuilderWinService";
+option go_package = "superbuilder/SuperBuilderWinService";
+
+package SuperBuilder;
+
+// The greeting service definition.
+service SuperBuilder {
+  // Send a greeting ( For connection testing )
+  rpc SayHello (SayHelloRequest) returns (SayHelloResponse);
+
+  // Send a greeting ( For connection testing )
+  rpc SayHelloPyllm (SayHelloRequest) returns (SayHelloResponse);
+
+  // Send a chat message and stream returns a response
+  rpc Chat (ChatRequest) returns (stream ChatResponse);
+
+  // Sends signal to safely stop the current chat request
+  rpc StopChat (StopChatRequest) returns (StopChatResponse);
+
+  // Loads the models and any other backend components before chatting
+  rpc LoadModels (LoadModelsRequest) returns (LoadModelsResponse);
+
+  // Check on health status backend system / service (for example: RAG check)
+  rpc CheckHealth (CheckHealthRequest) returns (CheckHealthResponse);
+
+  // Vector store user feedback to improve future responses
+  rpc AddFeedback (AddFeedbackRequest) returns (AddFeedbackResponse);
+
+  // Upload a list of files to the RAG module to be vector stored, stream the upload progress
+  rpc AddFiles (AddFilesRequest) returns (stream AddFilesResponse);
+
+  // Sends signal to stop the current upload file request
+  rpc StopAddFiles (StopAddFilesRequest) returns (StopAddFilesResponse);
+
+  // Remove a list of files from RAG doc store
+  rpc RemoveFiles (RemoveFilesRequest) returns (RemoveFilesResponse);
+
+  // Request to download a certain list of models, or just all required models if not specified
+  rpc DownloadFiles (DownloadFilesRequest) returns (stream DownloadFilesResponse);
+
+  // Request list of all files uploaded to the loaded document store
+  rpc GetFileList (GetFileListRequest) returns (GetFileListResponse);
+
+  // Set and load models in the backend given a model path
+  rpc SetModels (SetModelsRequest) returns (SetModelsResponse);
+
+  // Unloads models that are in the backend
+  rpc UnloadModels (UnloadModelsRequest) returns (UnloadModelsResponse);
+
+  // Change the RAG, LLM, and backend parameters
+  rpc SetParameters (SetParametersRequest) returns (SetParametersResponse);
+
+  // Inform the server that the client has disconnected to stop the backend service provider
+  rpc DisconnectClient (DisconnectClientRequest) returns (DisconnectClientResponse);
+
+  // Get config info from middleware
+  rpc GetClientConfig (GetClientConfigRequest) returns (GetClientConfigResponse);
+
+  // Get chat history messages from middleware
+  rpc GetChatHistory (GetChatHistoryRequest) returns (GetChatHistoryResponse);
+
+  // Send a greeting ( For connection testing )
+  rpc GetSoftwareUpdate (SayHelloRequest) returns (SayHelloResponse);
+
+  // Setting Vector DB of default assistant in sqlite db.
+  rpc SetVectorDB (SetVectorDBRequest) returns (SetVectorDBResponse);
+
+  // Removes a session and all data related to session from database given session id
+  rpc RemoveSession (RemoveSessionRequest) returns (RemoveSessionResponse);
+
+  // Update a session name given a valid unique session id
+  rpc SetSessionName (SetSessionNameRequest) returns (SetSessionNameResponse);
+
+  // Set Active Assistant or Models
+  rpc SetActiveAssistant(SetActiveAssistantRequest) returns (SetActiveAssistantResponse);
+
+  //Using an AssistantViewModel it will set the sqlite database active assistant to those fields.
+  rpc  SetAssistantViewModel(SetAssistantViewModelRequest) returns (SetAssistantViewModelResponse);
+
+  //Using UserConfigViewModel, sets sqlite database userconfig jsonappsettings to the corresponding fields.
+  rpc  SetUserConfigViewModel(SetUserConfigViewModelRequest) returns (SetUserConfigViewModelResponse);
+
+  rpc ConvertModel(ConvertModelRequest) returns (ConvertModelResponse);
+  rpc ValidateModel (ValidateModelRequest) returns (ValidateModelResponse);
+
+  rpc UploadModel(UploadModelRequest) returns (UploadModelResponse);
+
+  rpc ExportUserConfig(ExportUserConfigRequest) returns (ExportUserConfigResponse);
+  rpc ImportUserConfig(ImportUserConfigRequest) returns (ImportUserConfigResponse);
+
+  rpc RemoveModel(RemoveModelRequest) returns (RemoveModelResponse);
+
+  // MCP Agent RPCs
+  rpc GetMCPAgents (GetMCPAgentsRequest) returns (GetMCPAgentsResponse);
+  rpc GetActiveMCPAgents (GetActiveMCPAgentsRequest) returns (GetActiveMCPAgentsResponse);
+  rpc AddMCPAgent (AddMCPAgentRequest) returns (AddMCPAgentResponse);
+  rpc EditMCPAgent (EditMCPAgentRequest) returns (EditMCPAgentResponse);
+  rpc RemoveMCPAgent (RemoveMCPAgentRequest) returns (RemoveMCPAgentResponse);
+  rpc StartMCPAgent (StartMCPAgentRequest) returns (StartMCPAgentResponse);
+  rpc StopMCPAgent (StopMCPAgentRequest) returns (StopMCPAgentResponse);
+
+  // MCP Server RPCs
+  rpc GetMCPServers (GetMCPServersRequest) returns (GetMCPServersResponse);
+  rpc GetActiveMCPServers (GetActiveMCPServersRequest) returns (GetActiveMCPServersResponse);
+  rpc AddMCPServer (AddMCPServerRequest) returns (AddMCPServerResponse);
+  rpc EditMCPServer (EditMCPServerRequest) returns (EditMCPServerResponse);
+  rpc RemoveMCPServer (RemoveMCPServerRequest) returns (RemoveMCPServerResponse);
+  rpc StartMCPServer (StartMCPServerRequest) returns (StartMCPServerResponse);
+  rpc StopMCPServer (StopMCPServerRequest) returns (StopMCPServerResponse);
+  rpc GetMCPServerTools (GetMCPServerToolsRequest) returns (GetMCPServerToolsResponse);
+
+}
+
+// The request message containing the user's name.
+message SayHelloRequest {
+  // Name of the client sending the request
+  string name = 1;
+}
+
+// The response message containing the greetings.
+message SayHelloResponse {
+  // Returns status message "ready" if connection is successful
+  string message = 1;
+}
+
+// The request message for the chat.
+message ConversationHistory {
+  // Message sender (ex. 'assistant' or 'user')
+  string role = 1;
+  // Message content
+  string content = 2;
+}
+
+// Configure a prompt to run on a specific workflow type
+message PromptOptions {
+  // Standard RAG + LLM Chat
+  message GenericPrompt {}
+  // Evaluate a list of resumes against a scoring criteria
+  message ScoreResumesPrompt {
+    // When true, the prompt is the scoring criteria
+    bool isScoringCriteria = 1;
+  }
+  // Evaluate a list of general documents against a scoring criteria
+  message ScoreDocumentsPrompt {
+    // When true, the prompt is the scoring criteria
+    bool isScoringCriteria = 1;
+    // Include explanations for each score (will take longer to compute)
+    bool includeReasoning = 2;
+  }
+  // Advanced summary on a set of documents
+  message SummarizePrompt {}
+  // Generate table previews and SQL based on queries
+  message QueryTablesPrompt {}
+  // Query images (vision model required)
+  message QueryImagesPrompt {}
+  // Route all queries directly to the active MCP Agents
+  message SuperAgentPrompt {}
+
+  // The type of query being sent, defaults to generic chat if unset
+  oneof promptType {
+    GenericPrompt genericPrompt = 1;
+    ScoreResumesPrompt scoreResumesPrompt = 2;
+    ScoreDocumentsPrompt scoreDocumentsPrompt = 3;
+    SummarizePrompt summarizePrompt = 4;
+    QueryTablesPrompt queryTablesPrompt = 5;
+    QueryImagesPrompt queryImagesPrompt = 6;
+    SuperAgentPrompt superAgentPrompt = 7;
+  } 
+}
+
+message ChatRequest {
+  // Specify the sender of the message
+  string name = 1;
+  // The query to send to the LLM, will be set to a default prompt if unset
+  string prompt = 2;
+  // Previous messages in the conversation to provide additional context
+  repeated ConversationHistory history = 3;
+  // Chat session that this request belongs to, if none specified then history is not saved
+  optional int32 sessionId = 4;
+  // Additional options for the prompt to route to different workflows, defaults to general chat if unset
+  optional PromptOptions promptOptions = 5;
+  // A JSON list of filepaths for RAG chat. 'None' = use ALL files, '[]' = use NO files.
+  optional string attachedFiles = 6;
+}
+
+// The response message for the chat.
+message ChatResponse {
+  // The returned response content. If streaming, concatenate all returned messages for the full response.
+  string message = 1;
+  // Any file references used to get a response. If streaming, returned with the last response.
+  repeated Reference references = 2;
+}
+
+// Context reference object referring to particular file and page number
+message Reference {
+  // filepath of the reference
+  string file = 1;
+  // referenced page number if there is one
+  optional int32 page = 2;
+  // referenced sheet name if there is one
+  optional string sheet = 3;
+}
+
+message StopChatRequest {
+}
+
+message StopChatResponse {
+}
+
+message LoadModelsRequest {
+}
+
+message LoadModelsResponse {
+  // returns true on successful load
+  bool status = 1;
+}
+
+// The request message containing the type of health request
+message CheckHealthRequest {
+  // specify 'config' to send and save the MW config to the backend service, or 'version' to return current service version
+	string typeOfCheck = 1;
+}
+
+// The response message containing the status of the system
+message CheckHealthResponse {
+  // returns version number or status of save-config operation
+  string status = 1;
+}
+
+// The request message containing a question, its feedback, and type of feedback
+message AddFeedbackRequest {
+  // The original query the user sent in
+	string question = 1;
+  // Any user feedback based on the response returned
+	string feedback = 2;
+  // negative feedback: 'feedback-thumbs-down', positive feedback: 'feedback-thumbs-up'
+	string feedbackType = 3;
+  // The response returned for the given question
+  optional string answer = 4;
+}
+
+// The response message containing the feedback + question + feedback type
+message AddFeedbackResponse {
+  // Returns status response if successful
+  string message = 1;
+}
+
+// The request message containing a list of files to be uploaded to RAG
+message AddFilesRequest {
+  // A JSON list of filepaths to upload
+	string filesToUpload = 1;
+  // If specified and not an empty string, will skip embedding and only store the filepath
+  optional string uploadType = 2;
+}
+
+// The response message streamed back as a file is uploaded
+message AddFilesResponse {
+  // A JSON list of filepaths that have been successfully added to the file store
+  string filesUploaded = 1;
+  // The current filepath being added, if any
+  optional string currentFileUploading = 2; 
+  // The current file's progress percentage ranging from 0 to 100
+  optional string currentFileProgress = 3;
+}
+
+// The request message which currently contains nothing (but might be needed in the future)
+message GetFileListRequest {
+  // Currently unused, always returns filepaths with metadata
+  string fileType = 1;
+}
+
+message StopAddFilesRequest {
+}
+
+message StopAddFilesResponse {
+}
+
+// The request message when a client disconnects
+message DisconnectClientRequest {
+}
+
+// The response message when a client disconnects
+message DisconnectClientResponse {
+}
+
+// The response message containing list of all files found in document store
+message GetFileListResponse {
+  // A JSON list of all filepaths and their respective stored metadata 
+  string fileList = 1;
+}
+
+// The request message containing a list of files to be removed from RAG
+message RemoveFilesRequest {
+  // A JSON list of all filepaths to try and remove from the file store
+	string filesToRemove = 1;
+}
+
+// The response message containing list of all files successfully removed from RAG
+message RemoveFilesResponse {
+  // Returns the original JSON list of filepaths sent in if successful
+  string filesRemoved = 1;
+}
+
+// The request message containing list of models to download (if none, download missing)
+message DownloadFilesRequest {
+	string FileUrl = 1;
+	string localPath = 2;
+	optional string tokenId =3;
+}
+
+// The response message containing a list of models actually downloaded
+message DownloadFilesResponse {
+  int32 progress = 1; 
+  string FileDownloaded = 2;
+}
+
+// The request message which tells the backend which models to set
+message SetModelsRequest {
+  // Sets and loads a new LLM given a model path
+	optional string llm = 1;
+  // Sets and loads a new embedder model given a model path
+	optional string embedder = 2;
+  // Sets and loads a new ranker model given a model path
+  optional string ranker = 3;
+}
+
+// The response message of the models that were set
+message SetModelsResponse {
+	string modelsLoaded = 1;
+}
+
+// The request message which tells the backend which models to unload (true means unload)
+message UnloadModelsRequest {
+  // When true, unload the current LLM
+	bool llm = 1;
+  // When true, unload the current embedder model
+	bool embedder = 2;
+  // When true, unload the current ranker model
+  bool ranker = 3;
+}
+
+// The response message of the models that were unloaded
+message UnloadModelsResponse {
+	string modelsUnloaded = 1;
+}
+
+// A bunch of optional parameters to set, leaving blank is the same as not changing
+message SetParametersRequest {
+  string parameters_json = 1; //JSON string of any parameters present in the ModelParametersViewModel classes
+
+}
+
+// Response of setting the parameters, nothing for now
+message SetParametersResponse {}
+
+// The request message containing the user's name.
+message GetClientConfigRequest {
+  string assistant = 1;
+}
+
+// The response message containing the greetings.
+message GetClientConfigResponse {
+  string data = 1;
+}
+
+// The request message (currently empty)
+message GetChatHistoryRequest {
+}
+
+// The response message which returns all chat messages
+message GetChatHistoryResponse {
+  string data = 1;
+}
+
+message SetVectorDBRequest {
+	string connectionString = 1;
+}
+
+message SetVectorDBResponse {
+	string message = 1;
+}
+
+message RemoveSessionRequest {
+	int32 sessionId = 1;
+}
+
+message RemoveSessionResponse {
+	bool success = 1;
+}
+
+message SetSessionNameRequest {
+	int32 sessionId = 1;
+	string sessionName = 2;
+}
+
+message SetSessionNameResponse {
+	bool success = 1;
+}
+
+message SetActiveAssistantRequest {
+  string assistant = 1;
+  string models_json = 2;
+}
+
+message SetActiveAssistantResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message SetAssistantViewModelRequest {
+	string view_model = 1;
+	bool resetUXSettings=2;
+}
+
+message SetAssistantViewModelResponse {
+	string message = 1;
+}
+
+message SetUserConfigViewModelRequest {
+	string view_model = 1;
+}
+
+message SetUserConfigViewModelResponse {
+	string message = 1;
+}
+
+message ConvertModelRequest {
+	string model_path = 1;
+	optional string parameters = 2;
+}
+
+message ConvertModelResponse {
+	string message = 1;
+}
+
+message UploadModelRequest {
+	string source_dir = 1;
+	string model = 2;
+	string model_type = 3;
+	string download_link = 4;
+	bool move_directory = 5;
+}
+
+message UploadModelResponse {
+	string message = 1;
+}
+
+// Request message for exporting user configuration
+message ExportUserConfigRequest {
+  string AssistantName = 1;
+  string ExportPath = 2;
+}
+
+// Response message for exporting user configuration
+message ExportUserConfigResponse {
+  bool Success = 1;
+  string Message = 2;
+}
+
+// Request message for importing user configuration
+message ImportUserConfigRequest {
+  string ImportPath = 1;
+}
+
+// Response message for importing user configuration
+message ImportUserConfigResponse {
+  bool Success = 1;
+  string Message = 2;
+}
+
+message RemoveModelRequest {
+	string model_name = 1;
+  bool is_incompatible_model_removal = 2;
+}
+
+message RemoveModelResponse {
+	string message = 1;
+}
+
+message ValidateModelRequest {
+	string model_path = 1;
+  optional string model_type = 2;
+}
+
+message ValidateModelResponse {
+	bool is_valid = 1;
+}
+
+// =====
+// MCP
+// =====
+
+message CommonMCPResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// ============ MCP Agent ================
+message MCPAgent {
+  int32 id = 1;
+  string name = 2;
+  string desc = 3;
+  string message = 4;
+  repeated int32 server_ids = 5;
+}
+
+message GetMCPAgentsRequest {}
+message GetActiveMCPAgentsRequest {}
+message AddMCPAgentRequest { MCPAgent agent = 1;}
+message EditMCPAgentRequest { MCPAgent agent = 1;}
+message RemoveMCPAgentRequest { string AgentName = 1; }
+message StartMCPAgentRequest { string AgentName = 1; }
+message StopMCPAgentRequest { string AgentName = 1; }
+
+message GetMCPAgentsResponse { repeated MCPAgent agents = 1; }
+message GetActiveMCPAgentsResponse { repeated string names = 1; }
+message AddMCPAgentResponse { bool success = 1; string message = 2; }
+message EditMCPAgentResponse { bool success = 1; string message = 2; }
+message RemoveMCPAgentResponse { bool success = 1; string message = 2; }
+message StartMCPAgentResponse { bool success = 1; string message = 2; }
+message StopMCPAgentResponse { bool success = 1; string message = 2;}
+
+// ============ MCP Server ================
+message MCPServer {
+  int32 Id = 1;
+  string ServerName = 2;
+	string Command = 3;
+	string Args = 4;
+	string Url = 5;
+	string Env = 6;
+}
+
+message GetMCPServersRequest {}
+message GetActiveMCPServersRequest {}
+message AddMCPServerRequest { MCPServer server = 1;}
+message EditMCPServerRequest { MCPServer server = 1;}
+message RemoveMCPServerRequest { string ServerName = 1; }
+message GetMCPServerToolsRequest { string ServerName = 1; }
+message StartMCPServerRequest { string ServerName = 1; }
+message StopMCPServerRequest { string ServerName = 1; }
+
+message GetMCPServersResponse { repeated MCPServer servers = 1; }
+message GetActiveMCPServersResponse { repeated string names = 1; }
+message AddMCPServerResponse { bool success = 1; string message = 2; }
+message EditMCPServerResponse { bool success = 1; string message = 2; }
+message RemoveMCPServerResponse { bool success = 1; string message = 2; }
+message GetMCPServerToolsResponse { bool success = 1; string message = 2; }
+message StartMCPServerResponse { bool success = 1; string message = 2; }
+message StopMCPServerResponse { bool success = 1; string message = 2; }

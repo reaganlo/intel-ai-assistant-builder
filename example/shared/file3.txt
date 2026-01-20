@@ -1,0 +1,31 @@
+Ruby Carter
+Email: [ruby.carter@gmail.com](mailto:ruby.carter@gmail.com) | Phone: (123) 456-7890
+LinkedIn: linkedin.com/in/rubycarter | GitHub: github.com/rubycarter
+
+Summary
+Aspiring Machine Learning Engineer with hands-on experience in building and experimenting with machine learning models. Passionate about AI and data science, with a strong foundation in Python and data analysis. Eager to apply skills to solve real-world problems.
+
+Skills
+Programming: Python, SQL
+Machine Learning: Supervised Learning, Data Preprocessing, Model Evaluation
+Frameworks and Tools: Scikit-learn, TensorFlow (Basic), Pandas
+Data Science: Data Cleaning, Exploratory Data Analysis (EDA)
+
+Experience
+Data Science Intern
+Innovate AI | Jun 2022 – Dec 2022
+Assisted in preprocessing and analyzing datasets for machine learning projects.
+Developed Python scripts for data visualization and insights generation.
+Worked with cloud-based data storage solutions to manage datasets.
+
+Education
+Bachelor of Science in Computer Science
+Georgia Tech University | 2018 – 2022
+Relevant Courses: Machine Learning, Data Science, Algorithms
+
+Projects
+Image Classification (Personal Project). Implemented a basic CNN model using TensorFlow to classify images.
+Stock Price Analysis. Used Python and Pandas to analyze historical stock prices and visualize trends.
+
+Certifications
+Machine Learning Specialization – Coursera (2023)

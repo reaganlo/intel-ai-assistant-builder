@@ -1,0 +1,52 @@
+Celine Peter
+1234 Elm Street, Vancouver, WA 94102
+Email: [celine.peter@yahoo.com](mailto:celine.peter@yahoo.com) | Phone: (415) 555-1234 | LinkedIn: linkedin.com/in/celinepeter
+
+Summary
+Detail-oriented and analytical Junior Data Scientist with experience in machine learning, statistical modeling, and data visualization. Strong programming skills in Python and SQL, with a passion for turning data into actionable insights. Seeking to leverage expertise in data analysis and predictive modeling to contribute to data-driven decision-making at a growing organization.
+
+Education
+University of California, Berkeley
+Bachelor of Science in Data Science, May 2022
+Relevant Coursework: Machine Learning, Statistical Computing, Data Wrangling, Big Data Analytics, Natural Language Processing
+
+Technical Skills
+Programming: Python (Pandas, NumPy, Scikit-Learn, TensorFlow), SQL, R
+Data Visualization: Tableau, Matplotlib, Seaborn, Power BI
+Machine Learning: Regression, Classification, Clustering, Time Series Analysis
+Big Data Technologies: Spark, Hadoop
+Databases: PostgreSQL, MySQL
+Cloud & Tools: AWS, Google Cloud, Jupyter Notebooks, Git
+
+Work Experience
+Data Science Intern
+Google, Mountain View, CA | June 2022 - December 2022
+Developed machine learning models to predict user engagement, improving recommendation accuracy by 15%.
+Performed exploratory data analysis on large datasets to identify key user behavior patterns.
+Designed and implemented A/B tests to evaluate product changes, leading to data-driven enhancements.
+Created interactive dashboards in Tableau to visualize data insights for stakeholders.
+
+Research Assistant (Data Science Lab)
+University of California, Berkeley | September 2021 - May 2022
+Assisted in developing NLP models for sentiment analysis of social media data.
+Cleaned and preprocessed large text datasets using Python and SQL.
+Conducted statistical analysis on research data, identifying key trends and correlations.
+
+Projects
+Predictive Analytics for E-commerce
+Built a predictive model using Random Forest to forecast customer churn with 90% accuracy.
+Implemented feature engineering techniques to improve model performance.
+Visualized customer behavior trends using Matplotlib and Seaborn.
+
+Sentiment Analysis on Twitter Data
+Scraped and analyzed Twitter data to determine sentiment trends on major brands.
+Used NLP techniques and sentiment classification models to categorize tweets.
+Deployed the model using Flask and integrated it into a web dashboard.
+
+Certifications
+Google Data Analytics Professional Certificate
+AWS Certified Data Analytics - Specialty
+
+Additional Information
+Passionate about open-source data science projects and Kaggle competitions.
+Active member of the Berkeley AI & Data Science Club.
