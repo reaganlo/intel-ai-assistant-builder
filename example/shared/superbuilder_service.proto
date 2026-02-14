@@ -429,6 +429,7 @@ message SetUserConfigViewModelResponse {
 message ConvertModelRequest {
 	string model_path = 1;
 	optional string parameters = 2;
+	optional string token_id = 3;
 }
 
 message ConvertModelResponse {
@@ -499,53 +500,51 @@ message CommonMCPResponse {
 
 // ============ MCP Agent ================
 message MCPAgent {
-  int32 id = 1;
-  string name = 2;
-  string desc = 3;
-  string message = 4;
-  repeated int32 server_ids = 5;
+  string name = 1;
+  string desc = 2;
+  string message = 3;
+  repeated string server_names = 4;
 }
 
 message GetMCPAgentsRequest {}
 message GetActiveMCPAgentsRequest {}
 message AddMCPAgentRequest { MCPAgent agent = 1;}
-message EditMCPAgentRequest { MCPAgent agent = 1;}
-message RemoveMCPAgentRequest { string AgentName = 1; }
-message StartMCPAgentRequest { string AgentName = 1; }
-message StopMCPAgentRequest { string AgentName = 1; }
+message EditMCPAgentRequest { string editing_agent_name = 1; MCPAgent agent = 2;}
+message RemoveMCPAgentRequest { string agent_name = 1; }
+message StartMCPAgentRequest { string agent_name = 1; }
+message StopMCPAgentRequest { string agent_name = 1; }
 
 message GetMCPAgentsResponse { repeated MCPAgent agents = 1; }
 message GetActiveMCPAgentsResponse { repeated string names = 1; }
-message AddMCPAgentResponse { bool success = 1; string message = 2; }
-message EditMCPAgentResponse { bool success = 1; string message = 2; }
+message AddMCPAgentResponse { bool success = 1; string message = 2; MCPAgent agent = 3; }
+message EditMCPAgentResponse { bool success = 1; string message = 2; MCPAgent agent = 3; }
 message RemoveMCPAgentResponse { bool success = 1; string message = 2; }
 message StartMCPAgentResponse { bool success = 1; string message = 2; }
 message StopMCPAgentResponse { bool success = 1; string message = 2;}
 
 // ============ MCP Server ================
 message MCPServer {
-  int32 Id = 1;
-  string ServerName = 2;
-	string Command = 3;
-	string Args = 4;
-	string Url = 5;
-	string Env = 6;
+  string name = 1;
+	string command = 2;
+	string args = 3;
+	string url = 4;
+	string env = 5;
 }
 
 message GetMCPServersRequest {}
 message GetActiveMCPServersRequest {}
 message AddMCPServerRequest { MCPServer server = 1;}
-message EditMCPServerRequest { MCPServer server = 1;}
-message RemoveMCPServerRequest { string ServerName = 1; }
-message GetMCPServerToolsRequest { string ServerName = 1; }
-message StartMCPServerRequest { string ServerName = 1; }
-message StopMCPServerRequest { string ServerName = 1; }
+message EditMCPServerRequest { string editing_server_name = 1;  MCPServer server = 2;}
+message RemoveMCPServerRequest { string server_name = 1; }
+message GetMCPServerToolsRequest { string server_name = 1; }
+message StartMCPServerRequest { string server_name = 1; }
+message StopMCPServerRequest { string server_name = 1; }
 
 message GetMCPServersResponse { repeated MCPServer servers = 1; }
 message GetActiveMCPServersResponse { repeated string names = 1; }
-message AddMCPServerResponse { bool success = 1; string message = 2; }
-message EditMCPServerResponse { bool success = 1; string message = 2; }
-message RemoveMCPServerResponse { bool success = 1; string message = 2; }
+message AddMCPServerResponse { bool success = 1; string message = 2; MCPServer server = 3; }
+message EditMCPServerResponse { bool success = 1; string message = 2; MCPServer server = 3; }
+message RemoveMCPServerResponse { bool success = 1; string message = 2;  }
 message GetMCPServerToolsResponse { bool success = 1; string message = 2; }
 message StartMCPServerResponse { bool success = 1; string message = 2; }
 message StopMCPServerResponse { bool success = 1; string message = 2; }
