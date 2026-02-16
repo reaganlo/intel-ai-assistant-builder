@@ -16,11 +16,6 @@ internal class Program
         var client = new SuperBuilder.SuperBuilderClient(channel);
 
         await SayHelloAsync(client);
-        //await SetParametersAsync(client);
-        //await RunBasicChatAsync(client);
-        //await RunRAGChatAsync(client);
-        //await ManageMCPServersAsync(client);
-        //await RunSuperAgentChatAsync(client);
         await RunSuperAgentRAGChatAsync(client);
 
         Console.WriteLine("\n=== Done ===");
@@ -107,298 +102,148 @@ internal class Program
     #endregion
 
     #region MCP Management
-    private static async Task RemoveMcpServerByNameAsync(
-        SuperBuilder.SuperBuilderClient client,
-        string mcpServerName)
-    {
-        try
-        {
-            var response = await client.RemoveMCPServerAsync(
-                new RemoveMCPServerRequest
-                {
-                    ServerName = mcpServerName
-                });
 
-            if (!response.Success)
-            {
-                Console.WriteLine(
-                    $"Failed to remove MCP server '{mcpServerName}': {response.Message}");
-            }
-            else
-            {
-                Console.WriteLine(
-                    $"Successfully removed MCP server '{mcpServerName}': {response.Message}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error removing MCP server: {ex.Message}");
-        }
-    }
-
-    private static async Task<string> AddMcpServerAsync(
+    private static async Task AddOrReplaceMcpServerAsync(
         SuperBuilder.SuperBuilderClient client,
-        string mcpServerName,
+        string serverName,
         string command,
-        string args,
-        string url = "",
-        string env = "")
+        string args)
     {
+        var server = new MCPServer
+        {
+            Name = serverName,
+            Command = command,
+            Args = args
+        };
+
         try
         {
-            var addResponse = await client.AddMCPServerAsync(new AddMCPServerRequest
+            await client.AddMCPServerAsync(new AddMCPServerRequest
             {
-                Server = new MCPServer
-                {
-                    Name = mcpServerName,
-                    Command = command,
-                    Args = args,
-                    Url = url,
-                    Env = env
-                }
+                Server = server
             });
 
-            Console.WriteLine($"Add Server Response: Success={addResponse.Success}, Message={addResponse.Message}");
+            Console.WriteLine($"MCP Server '{serverName}' added successfully.");
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.AlreadyExists)
+        {
+            Console.WriteLine($"MCP Server '{serverName}' already exists. Replacing...");
 
-            if (addResponse.Success && addResponse.Server != null)
+            await StopAndRemoveServerAsync(client, serverName);
+
+            await client.AddMCPServerAsync(new AddMCPServerRequest
             {
-                Console.WriteLine($"Server Added: Name={addResponse.Server.Name}");
-                return addResponse.Server.Name;
-            }
+                Server = server
+            });
 
-            return mcpServerName;
+            Console.WriteLine($"MCP Server '{serverName}' re-added successfully.");
+        }
+        catch (RpcException ex)
+        {
+            Console.WriteLine($"gRPC error managing MCP server '{serverName}': {ex.Status.Detail}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error adding MCP server: {ex.Message}");
-            return null;
+            Console.WriteLine($"Unexpected error managing MCP server '{serverName}': {ex.Message}");
         }
     }
 
-    private static async Task<bool> StartMcpServerAsync(
+    private static async Task StopAndRemoveServerAsync(
         SuperBuilder.SuperBuilderClient client,
         string serverName)
     {
         try
         {
-            var response = await client.StartMCPServerAsync(new StartMCPServerRequest
+            await client.StopMCPServerAsync(new StopMCPServerRequest
             {
                 ServerName = serverName
             });
-
-            Console.WriteLine($"Start Server Response: Success={response.Success}, Message={response.Message}");
-            return response.Success;
         }
-        catch (Exception ex)
+        catch (RpcException ex) when (
+            ex.StatusCode == StatusCode.NotFound ||
+            ex.StatusCode == StatusCode.FailedPrecondition)
         {
-            Console.WriteLine($"Error starting MCP server: {ex.Message}");
-            return false;
+            // Ignore if already stopped or not found
         }
+
+        await client.RemoveMCPServerAsync(new RemoveMCPServerRequest
+        {
+            ServerName = serverName
+        });
     }
 
-    private static async Task<bool> StopMcpServerAsync(
+    private static async Task AddOrReplaceMcpAgentAsync(
         SuperBuilder.SuperBuilderClient client,
-        string serverName)
-    {
-        try
-        {
-            var response = await client.StopMCPServerAsync(new StopMCPServerRequest
-            {
-                ServerName = serverName
-            });
-
-            Console.WriteLine($"Stop Server Response: Success={response.Success}, Message={response.Message}");
-            return response.Success;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error stopping MCP server: {ex.Message}");
-            return false;
-        }
-    }
-
-    private static async Task StopAndRemoveMcpAgentAsync(
-        SuperBuilder.SuperBuilderClient client,
-        string agentName)
-    {
-        if (string.IsNullOrWhiteSpace(agentName))
-        {
-            throw new ArgumentException("Agent name must be provided.", nameof(agentName));
-        }
-
-        try
-        {
-            // 1. Stop the agent
-            var stopResponse = await client.StopMCPAgentAsync(
-                new StopMCPAgentRequest
-                {
-                    AgentName = agentName
-                });
-
-            if (!stopResponse.Success)
-            {
-                Console.WriteLine(
-                    $"Failed to stop agent '{agentName}': {stopResponse.Message}");
-            }
-            else
-            {
-                Console.WriteLine(
-                    $"Agent '{agentName}' stopped successfully: {stopResponse.Message}");
-            }
-
-            // 2. Remove the agent
-            var removeResponse = await client.RemoveMCPAgentAsync(
-                new RemoveMCPAgentRequest
-                {
-                    AgentName = agentName
-                });
-
-            if (!removeResponse.Success)
-            {
-                Console.WriteLine(
-                    $"Failed to remove agent '{agentName}': {removeResponse.Message}");
-            }
-            else
-            {
-                Console.WriteLine(
-                    $"Agent '{agentName}' removed successfully: {removeResponse.Message}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error in StopAndRemoveMcpAgent: {ex.Message}");
-        }
-    }
-
-    private static async Task<string> AddMcpAgentAsync(
-        SuperBuilder.SuperBuilderClient client,
-        string mcpAgentName,
+        string agentName,
         string desc,
         string message,
         params string[] serverNames)
     {
+        var agent = new MCPAgent
+        {
+            Name = agentName,
+            Desc = desc,
+            Message = message
+        };
+
+        agent.ServerNames.AddRange(serverNames);
+
         try
         {
-            var agent = new MCPAgent
+            await client.AddMCPAgentAsync(new AddMCPAgentRequest
             {
-                Name = mcpAgentName,
-                Desc = desc,
-                Message = message
-            };
+                Agent = agent
+            });
 
-            // Add server names to the repeated field
-            agent.ServerNames.AddRange(serverNames);
+            Console.WriteLine($"MCP Agent '{agentName}' added successfully.");
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.AlreadyExists)
+        {
+            Console.WriteLine($"MCP Agent '{agentName}' already exists. Replacing...");
 
-            var addResponse = await client.AddMCPAgentAsync(
-                new AddMCPAgentRequest
-                {
-                    Agent = agent
-                });
+            await StopAndRemoveAgentAsync(client, agentName);
 
-            Console.WriteLine($"Add Agent Response: Success={addResponse.Success}, Message={addResponse.Message}");
-
-            if (addResponse.Success && addResponse.Agent != null)
+            await client.AddMCPAgentAsync(new AddMCPAgentRequest
             {
-                Console.WriteLine($"Agent Added: Name={addResponse.Agent.Name}");
-                return addResponse.Agent.Name;
-            }
+                Agent = agent
+            });
 
-            return mcpAgentName;
+            Console.WriteLine($"MCP Agent '{agentName}' re-added successfully.");
+        }
+        catch (RpcException ex)
+        {
+            Console.WriteLine($"gRPC error managing MCP agent '{agentName}': {ex.Status.Detail}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error adding MCP agent: {ex.Message}");
-            return null;
+            Console.WriteLine($"Unexpected error managing MCP agent '{agentName}': {ex.Message}");
         }
     }
 
-    private static async Task<bool> StartMcpAgentAsync(
+    private static async Task StopAndRemoveAgentAsync(
         SuperBuilder.SuperBuilderClient client,
         string agentName)
     {
         try
         {
-            var response = await client.StartMCPAgentAsync(new StartMCPAgentRequest
+            await client.StopMCPAgentAsync(new StopMCPAgentRequest
             {
                 AgentName = agentName
             });
-
-            Console.WriteLine($"Start Agent Response: Success={response.Success}, Message={response.Message}");
-            return response.Success;
         }
-        catch (Exception ex)
+        catch (RpcException ex) when (
+            ex.StatusCode == StatusCode.NotFound ||
+            ex.StatusCode == StatusCode.FailedPrecondition)
         {
-            Console.WriteLine($"Error starting MCP agent: {ex.Message}");
-            return false;
+            // Ignore if already stopped or not found
         }
+
+        await client.RemoveMCPAgentAsync(new RemoveMCPAgentRequest
+        {
+            AgentName = agentName
+        });
     }
 
-    private static async Task ListMcpServersAsync(SuperBuilder.SuperBuilderClient client)
-    {
-        try
-        {
-            var response = await client.GetMCPServersAsync(new GetMCPServersRequest());
-
-            Console.WriteLine($"\nFound {response.Servers.Count} MCP Server(s):");
-            foreach (var server in response.Servers)
-            {
-                Console.WriteLine($"  Name={server.Name}, Command={server.Command}, Args={server.Args}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error listing MCP servers: {ex.Message}");
-        }
-    }
-
-    private static async Task ListMcpAgentsAsync(SuperBuilder.SuperBuilderClient client)
-    {
-        try
-        {
-            var response = await client.GetMCPAgentsAsync(new GetMCPAgentsRequest());
-
-            Console.WriteLine($"\nFound {response.Agents.Count} MCP Agent(s):");
-            foreach (var agent in response.Agents)
-            {
-                var servers = string.Join(", ", agent.ServerNames);
-                Console.WriteLine($"  Name={agent.Name}, Desc={agent.Desc}, Servers=[{servers}]");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error listing MCP agents: {ex.Message}");
-        }
-    }
-
-    private static async Task<List<string>> GetActiveMcpServersAsync(SuperBuilder.SuperBuilderClient client)
-    {
-        try
-        {
-            var response = await client.GetActiveMCPServersAsync(new GetActiveMCPServersRequest());
-            Console.WriteLine($"Active MCP Servers: {string.Join(", ", response.Names)}");
-            return response.Names.ToList();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error getting active MCP servers: {ex.Message}");
-            return new List<string>();
-        }
-    }
-
-    private static async Task<List<string>> GetActiveMcpAgentsAsync(SuperBuilder.SuperBuilderClient client)
-    {
-        try
-        {
-            var response = await client.GetActiveMCPAgentsAsync(new GetActiveMCPAgentsRequest());
-            Console.WriteLine($"Active MCP Agents: {string.Join(", ", response.Names)}");
-            return response.Names.ToList();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error getting active MCP agents: {ex.Message}");
-            return new List<string>();
-        }
-    }
     #endregion
 
     #region SuperAgent RAG Chat
@@ -410,17 +255,8 @@ internal class Program
         const string agentName = "PDFAgent";
         const string mcpServerName = "mcp-server-pdf";
 
-        // Step 1: Clean up existing agent
-        Console.WriteLine("\n-------- Remove Existing Agent --------");
-        await StopAndRemoveMcpAgentAsync(client, agentName);
-
-        // Step 2: Clean up existing server
-        Console.WriteLine("\n-------- Remove Existing MCP Server --------");
-        await StopMcpServerAsync(client, mcpServerName);
-        await RemoveMcpServerByNameAsync(client, mcpServerName);
-
-        // Step 3: Add MCP Server
-        Console.WriteLine("\n-------- Add MCP Server --------");
+        // Add MCP Server (removes and re-adds if already exists)
+        Console.WriteLine("\n-------- Setup MCP Server --------");
         var mcpServerExePath = Path.GetFullPath(Path.Combine(
             Directory.GetCurrentDirectory(), "..", "..", "shared", "mcp-server-pdf.exe"));
 
@@ -430,31 +266,15 @@ internal class Program
             return;
         }
 
-        var mcpArgs = "start";
-        var serverName = await AddMcpServerAsync(
-            client, mcpServerName, mcpServerExePath, mcpArgs);
+        await AddOrReplaceMcpServerAsync(client, mcpServerName, mcpServerExePath, "start");
 
-        if (string.IsNullOrEmpty(serverName))
-        {
-            Console.WriteLine("Failed to add MCP server.");
-            return;
-        }
+        // Start MCP Server
+        var startServerResponse = await client.StartMCPServerAsync(
+            new StartMCPServerRequest { ServerName = mcpServerName });
+        Console.WriteLine($"Start Server: {startServerResponse.Message}");
 
-        // Step 4: Start MCP Server
-        Console.WriteLine("\n-------- Start MCP Server --------");
-        var serverStarted = await StartMcpServerAsync(client, serverName);
-        if (!serverStarted)
-        {
-            Console.WriteLine("Failed to start MCP server.");
-            return;
-        }
-
-        // Step 5: List servers to verify
-        await ListMcpServersAsync(client);
-        await GetActiveMcpServersAsync(client);
-
-        // Step 6: Add MCP Agent
-        Console.WriteLine("\n-------- Add MCP Agent --------");
+        // Add MCP Agent (removes and re-adds if already exists)
+        Console.WriteLine("\n-------- Setup MCP Agent --------");
         string mcpAgentMessage = @"
 You execute ONE assigned task in a workflow.
 
@@ -483,33 +303,19 @@ RULES:
 OUTPUT: When complete, simply report your results and say nothing else.
 ";
 
-        var addedAgentName = await AddMcpAgentAsync(
+        await AddOrReplaceMcpAgentAsync(
             client,
             agentName,
             "Generate PDF file",
             mcpAgentMessage,
-            serverName);
+            mcpServerName);
 
-        if (string.IsNullOrEmpty(addedAgentName))
-        {
-            Console.WriteLine("Failed to add MCP agent.");
-            return;
-        }
+        // Start MCP Agent
+        var startAgentResponse = await client.StartMCPAgentAsync(
+            new StartMCPAgentRequest { AgentName = agentName });
+        Console.WriteLine($"Start Agent: {startAgentResponse.Message}");
 
-        // Step 7: Start MCP Agent
-        Console.WriteLine("\n-------- Start MCP Agent --------");
-        var agentStarted = await StartMcpAgentAsync(client, addedAgentName);
-        if (!agentStarted)
-        {
-            Console.WriteLine("Failed to start MCP agent.");
-            return;
-        }
-
-        // Step 8: List agents to verify
-        await ListMcpAgentsAsync(client);
-        await GetActiveMcpAgentsAsync(client);
-
-        // Step 9: Add files to Knowledge Base
+        // Add files to Knowledge Base
         Console.WriteLine("\n-------- Add Files to Knowledge Base --------");
         string[] ragFiles = new[] {
             Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "shared", "file1.txt")),
@@ -517,18 +323,9 @@ OUTPUT: When complete, simply report your results and say nothing else.
             Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "shared", "file3.txt"))
         };
 
-        // Verify files exist
-        foreach (var file in ragFiles)
-        {
-            if (!File.Exists(file))
-            {
-                Console.WriteLine($"WARNING: File not found: {file}");
-            }
-        }
-
         await AddFilesAsync(client, ragFiles);
 
-        // Step 10: Run SuperAgent Chat
+        // Run SuperAgent Chat
         Console.WriteLine("\n-------- SuperAgent RAG Chat --------");
         var request = new ChatRequest
         {
@@ -541,15 +338,14 @@ OUTPUT: When complete, simply report your results and say nothing else.
             }
         };
 
-        await StreamChatAsync(client, request, showReferences: true);
+        await StreamChatAsync(client, request);
     }
     #endregion
 
     #region Helper Functions
     private static async Task StreamChatAsync(
         SuperBuilder.SuperBuilderClient client,
-        ChatRequest request,
-        bool showReferences = false)
+        ChatRequest request)
     {
         var fullResponse = string.Empty;
 
@@ -562,12 +358,11 @@ OUTPUT: When complete, simply report your results and say nothing else.
                 Console.Write(response.Message);
                 fullResponse += response.Message;
 
-                if (showReferences && response.References.Count > 0)
+                if (response.References.Count > 0)
                 {
                     Console.WriteLine("\n\nReferences:");
                     foreach (var r in response.References)
                     {
-                        // For proto3 optional fields, check if default value (0 for int, empty for string)
                         var pageInfo = r.Page != 0 ? $", Page={r.Page}" : "";
                         var sheetInfo = !string.IsNullOrEmpty(r.Sheet) ? $", Sheet={r.Sheet}" : "";
                         Console.WriteLine($"  - File={r.File}{pageInfo}{sheetInfo}");
@@ -582,10 +377,7 @@ OUTPUT: When complete, simply report your results and say nothing else.
             {
                 await client.StopChatAsync(new StopChatRequest());
             }
-            catch
-            {
-                // Ignore errors when stopping
-            }
+            catch { /* Ignore */ }
         }
         finally
         {
